@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { getPlayers } from "./player.controller.js";
+import { getPlayers, createPlayerController } from "./player.controller.js";
 
 const router = Router();
 
 router.get("/", getPlayers);
+router.post("/", createPlayerController);
 
-export default router;
+export default router; 
