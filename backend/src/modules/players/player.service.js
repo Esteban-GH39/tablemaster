@@ -15,3 +15,22 @@ export const createPlayer = (playerData) => {
     players.push(newPlayer);
     return newPlayer;
 }
+
+export const updatePlayer = (id, playerData) => {
+    const player = players.find(player => player.id === Number(id))
+    if (!player) {
+        return null;
+    }
+    player.name = playerData.name || player.name;
+    return player;
+}
+
+export const deletePlayer = (id) => {
+    const playerIndex = players.findIndex(player => player.id === Number(id))
+    if (playerIndex === -1) {
+        return false;
+    }
+    const deletedPlayer = players[playerIndex];
+    players.splice(playerIndex, 1);
+    return deletedPlayer;
+}
