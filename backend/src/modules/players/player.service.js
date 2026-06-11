@@ -1,5 +1,14 @@
 const players = [
-    { id: 1, name: "Player 1", level: 5 },
+    {
+        id: 1,
+        fullName: "Player 1",
+        licenseNumber: "COL-001",
+        age: 18,
+        gender: "male",
+        club: "Club Demo",
+        rankingPoints: 1000,
+        dominantHand: "right"
+    }
 ];
 
 export const getAllPlayers = () => {
@@ -11,7 +20,11 @@ export const getPlayerById = (id) => {
 }
 
 export const createPlayer = (playerData) => {
-    const newPlayer = { id: Date.now(), ...playerData };
+    const newPlayer = {
+        id: Date.now(),
+        rankingPoints: 0,
+        ...playerData 
+    };
     players.push(newPlayer);
     return newPlayer;
 }
@@ -21,7 +34,7 @@ export const updatePlayer = (id, playerData) => {
     if (!player) {
         return null;
     }
-    player.name = playerData.name || player.name;
+    Object.assign(player, playerData);
     return player;
 }
 

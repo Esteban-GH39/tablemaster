@@ -19,27 +19,16 @@ export const getPlayerByIdController = (req, res) => {
 }
 
 export const createPlayerController = (req, res) => {
-    const { name } = req.body;
-    if (!name || name.trim() === "" ) {
-        return res.status(400).json({ message: "Name is required" });
-    }
-    const newPlayer = createPlayer(req.body);
-    res.status(201).json({
+    const newPlayer = createPlayer(req.body)
+    return res.status(201).json({
         message: "Player created successfully",
         player: newPlayer
-    });
+    })
 }
 
 export const updatePlayerController = (req, res) => {
-    const { name } = req.body;
-    if (!name || name.trim() === "") {
-        return res.status(400).json({ message: "Name is required" });
-    }
-    const updatedPlayer = updatePlayer(req.params.id, req.body);
-    if (!updatedPlayer) {
-        return res.status(404).json({ message: "Player not found" });
-    }
-    res.json({
+    const updatedPlayer = updatePlayer(req.params.id, req.body)
+    return res.json({
         message: "Player updated successfully",
         player: updatedPlayer
     })
