@@ -1,8 +1,12 @@
 import { getAllPlayers, getPlayerById, createPlayer, updatePlayer, deletePlayer } from "./player.service.js";
 
-export const getPlayers = (req, res) => {
-    const players = getAllPlayers();
-    res.json(players);
+export const getPlayers = async (req, res) => {
+    try{
+        const players = await getAllPlayers();
+        res.json(players);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching players" });
+    }
 }
 
 export const getPlayerByIdController = (req, res) => {

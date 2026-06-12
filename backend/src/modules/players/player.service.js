@@ -1,18 +1,8 @@
-const players = [
-    {
-        id: 1,
-        fullName: "Player 1",
-        licenseNumber: "COL-001",
-        age: 18,
-        gender: "male",
-        club: "Club Demo",
-        rankingPoints: 1000,
-        dominantHand: "right"
-    }
-];
+import { pool } from "../../config/database.js";
 
-export const getAllPlayers = () => {
-    return players;
+export const getAllPlayers = async () => {
+    const result = await pool.query(`SELECT * FROM players ORDER BY id`);
+    return result.rows;
 }
 
 export const getPlayerById = (id) => {
