@@ -6,34 +6,52 @@ export const getAllPlayers = async () => {
 }
 
 export const getPlayerById = (id) => {
-    return players.find(player => player.id === Number(id));
+    const result = pool.query(`SELECT * FROM players where id = $1`, [id]);
 }
 
-export const createPlayer = (playerData) => {
-    const newPlayer = {
-        id: Date.now(),
-        rankingPoints: 0,
-        ...playerData 
+export const createPlayer = async (playerData) => {
+    const  {
+        fullName, age, gender, club, dominantHand, playStyle, gripType
+    } = playerData;
+    const result = await pool.query(`INSERT INTO players (full_name, age, gender, club, dominant_hand, play_style, grip_type)
+        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [fullName, age, gender, club, dominantHand, playStyle, gripType]);
+    return result.rows[0];
+}
+
+export const updatePlayer = async (id, playerData) => {
+    const  {
+        fullName, age, gender, club, dominantHand, playStyle, gripType
+    } = playerData;
+    const result = await pool.query(`UPDATE players SET full_name = $1, age = $2, gender = $3, club = $4, dominant_hand = $5, play_style = $6, grip_type = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8 RETURNING *`, 
+        [fullName, age, gender, club, dominantHand, playStyle, gripType, id]);
+    return result.rows[0];
+}
+
+export const patchPlayer = async (id, playerData) => {
+    const fieldMap = {
+        fullName: "full_name",
+        age : "age", 
+        gender: "gender",
+        club: "club",
+        dominantHand: "dominant_hand",
+        playStyle: "play_style",
+        gripType: "grip_type"
     };
-    players.push(newPlayer);
-    return newPlayer;
+    const updates = [];
+    const values = [];
+    Object.entries(playerData).forEach(([key, value], index) => {
+        updates.push(`${fieldMap[key]} = $${index + 1}`);
+        values.push(value);
+    })
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(id);
+    const result = await pool.query(`UPDATE players SET ${updates.join(", ")} WHERE id = $${values.length} RETURNING *`, values);
+    return result.rows[0];
 }
 
-export const updatePlayer = (id, playerData) => {
-    const player = players.find(player => player.id === Number(id))
-    if (!player) {
-        return null;
-    }
-    Object.assign(player, playerData);
-    return player;
-}
-
-export const deletePlayer = (id) => {
-    const playerIndex = players.findIndex(player => player.id === Number(id))
-    if (playerIndex === -1) {
-        return false;
-    }
-    const deletedPlayer = players[playerIndex];
-    players.splice(playerIndex, 1);
-    return deletedPlayer;
+export const deletePlayer = async (id) => {
+    const result = await pool.query(`DELETE FROM players WHERE id = $1 RETURNING *;`,
+        [id]
+    );
+    return result.rows[0];    
 }
