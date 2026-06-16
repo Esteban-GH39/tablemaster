@@ -1,12 +1,26 @@
 import { pool } from "../../config/database.js";
 
+const mapPlayer = (player) => ({
+    id: player.id,
+    fullName: player.full_name,
+    age: player.age,
+    gender: player.gender,
+    club: player.club,
+    dominantHand: player.dominant_hand,
+    playStyle: player.play_style,
+    gripType: player.grip_type,
+    createdAt: player.created_at,
+    updatedAt: player.updated_at
+})
+
 export const getAllPlayers = async () => {
     const result = await pool.query(`SELECT * FROM players ORDER BY id`);
-    return result.rows;
+    return result.rows.map(mapPlayer);
 }
 
 export const getPlayerById = (id) => {
     const result = pool.query(`SELECT * FROM players where id = $1`, [id]);
+    return result.rows.length ? mapPlayer(result.rows[0]) : null;
 }
 
 export const createPlayer = async (playerData) => {
@@ -15,7 +29,7 @@ export const createPlayer = async (playerData) => {
     } = playerData;
     const result = await pool.query(`INSERT INTO players (full_name, age, gender, club, dominant_hand, play_style, grip_type)
         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [fullName, age, gender, club, dominantHand, playStyle, gripType]);
-    return result.rows[0];
+    return mapPlayer(result.rows[0]);
 }
 
 export const updatePlayer = async (id, playerData) => {
@@ -24,7 +38,7 @@ export const updatePlayer = async (id, playerData) => {
     } = playerData;
     const result = await pool.query(`UPDATE players SET full_name = $1, age = $2, gender = $3, club = $4, dominant_hand = $5, play_style = $6, grip_type = $7, updated_at = CURRENT_TIMESTAMP WHERE id = $8 RETURNING *`, 
         [fullName, age, gender, club, dominantHand, playStyle, gripType, id]);
-    return result.rows[0];
+    return mapPlayer(result.rows[0]);
 }
 
 export const patchPlayer = async (id, playerData) => {
@@ -46,12 +60,12 @@ export const patchPlayer = async (id, playerData) => {
     updates.push(`updated_at = CURRENT_TIMESTAMP`);
     values.push(id);
     const result = await pool.query(`UPDATE players SET ${updates.join(", ")} WHERE id = $${values.length} RETURNING *`, values);
-    return result.rows[0];
+    return mapPlayer(result.rows[0]);
 }
 
 export const deletePlayer = async (id) => {
     const result = await pool.query(`DELETE FROM players WHERE id = $1 RETURNING *;`,
         [id]
     );
-    return result.rows[0];    
+    return mapPlayer(result.rows[0]);    
 }
