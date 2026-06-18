@@ -1,5 +1,6 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import { playerSchemas } from "../docs/schemas/player.swagger.js";
+import { tournamentSchemas } from "../docs/schemas/tournament.swagger.js";
 import { commonResponses } from "../docs/responses/common.responses.js";
 
 const options = {

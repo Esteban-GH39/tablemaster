@@ -19,7 +19,6 @@ export const getTournamentById = async (id) => {
         `,
         [id]
     );
-
     return result.rows[0];
 };
 
@@ -59,7 +58,6 @@ export const createTournament = async (tournamentData) => {
             maxPlayers
         ]
     );
-
     return result.rows[0];
 };
 
@@ -100,7 +98,6 @@ export const updateTournament = async (id, tournamentData) => {
             id
         ]
     );
-
     return result.rows[0];
 };
 
@@ -136,6 +133,5 @@ export const deleteTournament = async (id) => {
         `,
         [id]
     );
-
     return result.rows[0];
 };

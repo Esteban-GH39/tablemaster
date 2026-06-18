@@ -4,11 +4,11 @@
  *   get:
  *     tags:
  *       - Tournaments
- *     summary: Get all Tournaments
- *     description: Returns a list of all registered Tournaments.
+ *     summary: Get all tournaments
+ *     description: Returns a list of all registered tournaments.
  *     responses:
  *       200:
- *         description: List of Tournaments retrieved successfully.
+ *         description: List of tournaments retrieved successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -25,8 +25,8 @@
  *   get:
  *     tags:
  *       - Tournaments
- *     summary: Get Tournament by ID
- *     description: Returns a single Tournament.
+ *     summary: Get tournament by ID
+ *     description: Returns a single tournament.
  *     parameters:
  *       - in: path
  *         name: id
@@ -53,8 +53,8 @@
  *   post:
  *     tags:
  *       - Tournaments
- *     summary: Create a new Tournament
- *     description: Creates a new Tournament.
+ *     summary: Create a new tournament
+ *     description: Creates a new tournament.
  *     requestBody:
  *       required: true
  *       content:
@@ -62,13 +62,13 @@
  *           schema:
  *             $ref: '#/components/schemas/TournamentCreate'
  *           example:
- *             fullName: "Esteban Girón"
- *             age: 23
- *             gender: "male"
- *             club: "Bogotá TTC"
- *             dominantHand: "right"
- *             playStyle: "offensive"
- *             gripType: "shakehand"
+ *             name: "Liga Bogotá 2026"
+ *             description: "Primer torneo nacional del año"
+ *             location: "Bogotá"
+ *             startDate: "2026-08-10"
+ *             endDate: "2026-08-12"
+ *             status: "registration"
+ *             maxPlayers: 64
  *     responses:
  *       201:
  *         description: Tournament created successfully.
@@ -88,8 +88,8 @@
  *   put:
  *     tags:
  *       - Tournaments
- *     summary: Update a Tournament
- *     description: Replaces all Tournament information.
+ *     summary: Update a tournament
+ *     description: Replaces all tournament information.
  *     parameters:
  *       - in: path
  *         name: id
@@ -123,8 +123,8 @@
  *   patch:
  *     tags:
  *       - Tournaments
- *     summary: Partially update a Tournament
- *     description: Updates one or more Tournament fields.
+ *     summary: Partially update a tournament
+ *     description: Updates one or more tournament fields.
  *     parameters:
  *       - in: path
  *         name: id
@@ -158,8 +158,8 @@
  *   delete:
  *     tags:
  *       - Tournaments
- *     summary: Delete a Tournament
- *     description: Deletes a Tournament by ID.
+ *     summary: Delete a tournament
+ *     description: Deletes a tournament by ID.
  *     parameters:
  *       - in: path
  *         name: id

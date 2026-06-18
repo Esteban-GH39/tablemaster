@@ -18,8 +18,8 @@ export const getAllPlayers = async () => {
     return result.rows.map(mapPlayer);
 }
 
-export const getPlayerById = (id) => {
-    const result = pool.query(`SELECT * FROM players where id = $1`, [id]);
+export const getPlayerById = async (id) => {
+    const result = await pool.query(`SELECT * FROM players where id = $1`, [id]);
     return result.rows.length ? mapPlayer(result.rows[0]) : null;
 }
 
