@@ -1,18 +1,14 @@
-import { generateBracket } from "./competition.service.js";
+import { startCompetition } from "./competition.service.js";
 
-export const generateBracketController = async (req, res) => {
-    try {
-        const tournamentId = Number(req.params.id);
-
-        const matches = await generateBracket(tournamentId);
-
-        res.status(201).json(matches);
-
-    } catch (error) {
-
+export const startCompetitionController = async (req,res)=>{
+    try{
+        const result=await startCompetition(
+            Number(req.params.id)
+        );
+        res.status(201).json(result);
+    }catch(error){
         res.status(400).json({
-            message: error.message
+            message:error.message
         });
-
     }
 };

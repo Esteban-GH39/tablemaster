@@ -1,19 +1,15 @@
-const nextPowerOfTwo = (number) => {
-    let power = 1;
-    while (power < number) {
-        power *= 2;
-    }
-    return power;
+import { nextPowerOfTwo } from "./round.generator.js";
+
+export const calculateByes = (entries) => {
+    const totalSlots = nextPowerOfTwo(entries);
+    return totalSlots - entries;
 };
-export const generateByes = (players) => {
-    const bracketSize = nextPowerOfTwo(players.length);
-    const byes = bracketSize - players.length;
-    const list = [...players];
+
+export const insertByes = (entries) => {
+    const byes = calculateByes(entries.length);
+    const result = [...entries];
     for (let i = 0; i < byes; i++) {
-        list.push({
-            player_id: null,
-            bye: true
-        });
+        result.push(null);
     }
-    return list;
+    return result;
 };
