@@ -4,6 +4,7 @@ import { generateGroups } from "../../helpers/groups/group.generator.js";
 import { generateRoundRobinMatches } from "../../helpers/groups/group.matches.js";
 import { generateSeeds } from "../../helpers/bracket/seed.generator.js";
 import { calculateRounds } from "../../helpers/bracket/round.generator.js";
+import { insertByes } from "../../helpers/bracket/bye.generator.js";
 
 export const createCompetition = async (tournamentId) => {
     const tournament = await getTournamentById(tournamentId);
@@ -40,6 +41,12 @@ export const createCompetition = async (tournamentId) => {
             "groups_knockout"
         ]
     );
+    console.log("Competition created:", result.rows[0]);
+    const verify = await pool.query(
+        `
+        SELECT count(*) as total
+        FROM competitions
+        `);
     return result.rows[0];
 };
 
@@ -96,6 +103,72 @@ const createGroups = async (stageId, totalEntries) => {
         groups.push(result.rows[0]);
     }
     return groups;
+};
+
+const saveGroups = async (stageId, groups) => {
+    const savedGroups = [];
+    for (const group of groups) {
+        const groupResult = await pool.query(
+            `
+            INSERT INTO groups
+            (
+                stage_id,
+                name
+            )
+            VALUES
+            (
+                $1,
+                $2
+            )
+            RETURNING *
+            `,
+            [
+                stageId,
+                group.name
+            ]
+        );
+        const savedGroup = groupResult.rows[0];
+        for (let i = 0; i < group.entries.length; i++) {
+            await pool.query(
+                `
+                INSERT INTO group_entries
+                (
+                    group_id,
+                    entry_id,
+                    position,
+                    wins,
+                    losses,
+                    sets_won,
+                    sets_lost,
+                    points_won,
+                    points_lost
+                )
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                )
+                `,
+                [
+                    savedGroup.id,
+                    group.entries[i].id,
+                    i + 1
+                ]
+            );
+        }
+        savedGroups.push({
+            ...savedGroup,
+            entries: group.entries
+        });
+    }
+    return savedGroups;
 };
 
 const getEntries = async (tournamentId) => {
@@ -168,12 +241,13 @@ const getGroupEntries = async (groupId) => {
 };
 
 const generateGroupMatches = async (tournamentId, stageId, groups) => {
-    {
     for (const group of groups) {
         const entries = await getGroupEntries(group.id);
-        let order = 1;
-        for (let i = 0; i < entries.length; i++) {
-            for (let j = i + 1; j < entries.length; j++) 
+        const rounds = generateRoundRobinMatches(entries);
+        let matchOrder = 1;
+        for (let roundIndex = 0; roundIndex < rounds.length; roundIndex++) {
+            const round = rounds[roundIndex];
+            for (const match of round) {
                 await pool.query(
                     `
                     INSERT INTO matches
@@ -184,6 +258,7 @@ const generateGroupMatches = async (tournamentId, stageId, groups) => {
                         player_one_id,
                         player_two_id,
                         round,
+                        round_order,
                         match_order,
                         status
                     )
@@ -196,6 +271,7 @@ const generateGroupMatches = async (tournamentId, stageId, groups) => {
                         $5,
                         $6,
                         $7,
+                        $8,
                         'pending'
                     )
                     `,
@@ -203,13 +279,13 @@ const generateGroupMatches = async (tournamentId, stageId, groups) => {
                         tournamentId,
                         stageId,
                         group.id,
-                        entries[i].player_id,
-                        entries[j].player_id,
+                        match.playerOne.player_id,
+                        match.playerTwo.player_id,
                         `Group ${group.name}`,
-                        order
+                        roundIndex + 1,
+                        matchOrder++
                     ]
                 );
-                order++;
             }
         }
     }
@@ -360,25 +436,26 @@ export const recalculateGroup = async (groupId) => {
 };
 
 const getGroupStandings = async (groupId) => {
-
     const result = await pool.query(
         `
         SELECT
-            *
-        FROM group_entries
-        WHERE group_id = $1
+            ge.*,
+            te.tournament_id,
+            te.player_id,
+            te.team_id
+        FROM group_entries ge
+        INNER JOIN tournament_entries te
+            ON te.id = ge.entry_id
+        WHERE ge.group_id = $1
         ORDER BY
-            position ASC
+            ge.position ASC
         `,
         [groupId]
     );
-
     return result.rows;
-
 };
 
 const getKnockoutStage = async (competitionId) => {
-
     const result = await pool.query(
         `
         SELECT *
@@ -389,9 +466,7 @@ const getKnockoutStage = async (competitionId) => {
         `,
         [competitionId]
     );
-
     return result.rows[0];
-
 };
 
 export const generateKnockout = async (competitionId) => {
@@ -416,114 +491,120 @@ export const generateKnockout = async (competitionId) => {
     const groups = groupsResult.rows;
     const qualified = [];
     for (const group of groups) {
-        const standings = await getGroupStandings(group.id);
-        qualified.push({
-            group: group.name,
-            first: standings[0],
-            second: standings[1]
-        });
-    }
-    let order = 1;
-    for (let i = 0; i < qualified.length; i += 2) {
-        if (!qualified[i + 1]) {
-            break;
+        const standings = await getGroupStandings(
+            group.id
+        );
+        if (standings[0]) {
+            qualified.push({
+                group: group.name,
+                position: 1,
+                ...standings[0]
+            });
         }
-        const groupA = qualified[i];
-        const groupB = qualified[i + 1];
-        const firstA = await pool.query(
+        if (standings[1]) {
+            qualified.push({
+                group: group.name,
+                position: 2,
+                ...standings[1]
+            });
+        }
+    }
+    const bracket = insertByes(
+        qualified
+    );
+    const firstRound = calculateRounds(
+        bracket.length
+    )[0];
+    await createKnockoutTree(
+        bracket[0].tournament_id,
+        knockoutStage.id,
+        bracket.length
+    );
+    const rounds = calculateRounds(
+        bracket.length
+    );
+    const firstRoundOrder = 1;
+    let order = 1;
+    for (let i = 0; i < bracket.length; i += 2) {
+        const playerOne = bracket[i];
+        const playerTwo = bracket[i + 1];
+        if (!playerOne && !playerTwo) {
+            continue;
+        }
+        const matchResult = await pool.query(
             `
             SELECT *
-            FROM tournament_entries
-            WHERE id = $1
-            `,
-            [groupA.first.entry_id]
-        );
-        const secondA = await pool.query(
-            `
-            SELECT *
-            FROM tournament_entries
-            WHERE id = $1
-            `,
-            [groupA.second.entry_id]
-        );
-        const firstB = await pool.query(
-            `
-            SELECT *
-            FROM tournament_entries
-            WHERE id = $1
-            `,
-            [groupB.first.entry_id]
-        );
-        const secondB = await pool.query(
-            `
-            SELECT *
-            FROM tournament_entries
-            WHERE id = $1
-            `,
-            [groupB.second.entry_id]
-        );
-        await pool.query(
-            `
-            INSERT INTO matches
-            (
-                tournament_id,
-                stage_id,
-                player_one_id,
-                player_two_id,
-                round,
-                match_order,
-                status
-            )
-            VALUES
-            (
-                $1,
-                $2,
-                $3,
-                $4,
-                'Quarterfinal',
-                $5,
-                'pending'
-            )
+            FROM matches
+            WHERE
+                stage_id = $1
+                AND round_order = 1
+                AND match_order = $2
             `,
             [
-                firstA.rows[0].tournament_id,
                 knockoutStage.id,
-                firstA.rows[0].player_id,
-                secondB.rows[0].player_id,
-                order++
+                order
             ]
         );
+        if (!matchResult.rows.length) {
+            throw new Error("First round match not found");
+        }
         await pool.query(
             `
-            INSERT INTO matches
-            (
-                tournament_id,
-                stage_id,
-                player_one_id,
-                player_two_id,
-                round,
-                match_order,
-                status
-            )
-            VALUES
-            (
-                $1,
-                $2,
-                $3,
-                $4,
-                'Quarterfinal',
-                $5,
-                'pending'
-            )
+            UPDATE matches
+            SET
+                player_one_id = $1,
+                player_two_id = $2,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $3
             `,
             [
-                firstA.rows[0].tournament_id,
-                knockoutStage.id,
-                firstB.rows[0].player_id,
-                secondA.rows[0].player_id,
-                order++
+                playerOne?.player_id ?? null,
+                playerTwo?.player_id ?? null,
+                matchResult.rows[0].id
             ]
         );
+        order++;
+    }
+};
+
+const createKnockoutTree = async (tournamentId, stageId, totalPlayers) => {
+    const rounds = calculateRounds(totalPlayers);
+    let matchesInRound = totalPlayers / 2;
+    let roundOrder = 1;
+    for (const round of rounds) {
+        for (let order = 1; order <= matchesInRound; order++) {
+            await pool.query(
+                `
+                INSERT INTO matches
+                (
+                    tournament_id,
+                    stage_id,
+                    round,
+                    round_order,
+                    match_order,
+                    status
+                )
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    'pending'
+                )
+                `,
+                [
+                    tournamentId,
+                    stageId,
+                    round,
+                    roundOrder,
+                    order
+                ]
+            );
+        }
+        matchesInRound /= 2;
+        roundOrder++;
     }
 };
 
@@ -552,143 +633,6 @@ export const finishGroupStage = async (competitionId) => {
     await generateKnockout(
         competitionId
     );
-};
-
-export const advanceWinner = async (matchId) => {
-    const matchResult = await pool.query(
-        `
-        SELECT *
-        FROM matches
-        WHERE id = $1
-        `,
-        [matchId]
-    );
-    if (!matchResult.rows.length) {
-        throw new Error("Match not found");
-    }
-    const match = matchResult.rows[0];
-    if (match.status !== "finished") {
-        throw new Error("Match is not finished");
-    }
-    if (!match.winner_id) {
-        throw new Error("Winner not found");
-    }
-    const matchesResult = await pool.query(
-        `
-        SELECT *
-        FROM matches
-        WHERE
-            tournament_id = $1
-            AND stage_id = $2
-        ORDER BY
-            round,
-            match_order
-        `,
-        [
-            match.tournament_id,
-            match.stage_id
-        ]
-    );
-    const matches = matchesResult.rows;
-    const currentRoundMatches = matches.filter(
-        m => m.round === match.round
-    );
-    if (currentRoundMatches.length === 1) {
-        await pool.query(
-            `
-            UPDATE tournaments
-            SET
-                status='finished',
-                updated_at=CURRENT_TIMESTAMP
-            WHERE id = $1
-            `,
-            [match.tournament_id]
-        );
-        return;
-    }
-    const rounds = calculateRounds(qualified.length);
-    const firstRound = rounds[0];
-    const currentIndex = rounds.indexOf(
-        match.round
-    );
-    const nextRound = rounds[currentIndex + 1];
-    const nextOrder = Math.ceil(
-        match.match_order / 2
-    );
-    let nextMatch = await pool.query(
-        `
-        SELECT *
-        FROM matches
-        WHERE
-            tournament_id = $1
-            AND stage_id = $2
-            AND round = $3
-            AND match_order = $4
-        `,
-        [
-            match.tournament_id,
-            match.stage_id,
-            nextRound,
-            nextOrder
-        ]
-    );
-    if (!nextMatch.rows.length) {
-        nextMatch = await pool.query(
-            `
-            INSERT INTO matches
-            (
-                tournament_id,
-                stage_id,
-                round,
-                match_order,
-                status
-            )
-            VALUES
-            (
-                $1,
-                $2,
-                $3,
-                $4,
-                'pending'
-            )
-            RETURNING *
-            `,
-            [
-                match.tournament_id,
-                match.stage_id,
-                nextRound,
-                nextOrder
-            ]
-        )
-    }
-    const target = nextMatch.rows[0];
-    if (!target.player_one_id) {
-        await pool.query(
-            `
-            UPDATE matches
-            SET
-                player_one_id = $1
-            WHERE id = $2
-            `,
-            [
-                match.winner_id,
-                target.id
-            ]
-        );
-    } else {
-        await pool.query(
-            `
-            UPDATE matches
-            SET
-                player_two_id = $1
-            WHERE id = $2
-            `,
-            [
-                match.winner_id,
-                target.id
-            ]
-        );
-    }
 };
 
 export const isGroupFinished = async (groupId) => {
@@ -747,20 +691,25 @@ export const startCompetition = async (tournamentId) => {
     const groupStage = stages.find(
         stage => stage.stage_type === "groups"
     );
-    const groups = await generateGroups(
+    
+    const generatedGroups = generateGroups(entries);
+
+    const groups = await saveGroups(
         groupStage.id,
-        entries
+        generatedGroups
     );
-    await generateRoundRobinMatches(
+
+    await generateGroupMatches(
         tournamentId,
         groupStage.id,
         groups
     );
+
     await pool.query(
         `
         UPDATE tournaments
         SET
-            status = 'in_progress',
+            status = 'ongoing',
             updated_at = CURRENT_TIMESTAMP
         WHERE id = $1
         `,

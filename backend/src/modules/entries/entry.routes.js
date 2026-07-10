@@ -9,6 +9,6 @@ router.get("/:id/entries", getEntriesController);
 
 router.post("/:id/entries", validate(createEntrySchema), createEntryController);
 
-router.delete("/:id/entries/:playerId", deleteEntryController);
+router.delete("/entries/:entryId", deleteEntryController);
 
 export default router;

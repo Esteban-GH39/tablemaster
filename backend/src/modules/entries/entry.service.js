@@ -28,7 +28,6 @@ export const createEntry = async (tournamentId, entryData) => {
             throw new Error("Player not found");
         }
     }
-
     const alreadyRegistered = await pool.query(
         `
         SELECT *
@@ -47,7 +46,6 @@ export const createEntry = async (tournamentId, entryData) => {
             teamId ?? null
         ]
     );
-
     if (alreadyRegistered.rows.length) {
         throw new Error("Entry already registered");
     }

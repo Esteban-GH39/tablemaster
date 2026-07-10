@@ -13,24 +13,33 @@ export const advanceWinner = async (matchId) => {
         throw new Error("Match not found");
     }
     const match = matchResult.rows[0];
-    if (match.status !== "finished") {
-        throw new Error("Match has not finished");
+    const winnerId =
+        match.winner_id ??
+        match.player_one_id ??
+        match.player_two_id;
+    if (!winnerId) {
+        return;
     }
-    const nextOrder = Math.ceil(match.match_order / 2);
-    const rounds = [
-        "Round of 128",
-        "Round of 64",
-        "Round of 32",
-        "Round of 16",
-        "Quarterfinal",
-        "Semifinal",
-        "Final"
-    ];
-    const currentIndex = rounds.indexOf(match.round);
-    if (currentIndex === -1) {
-        throw new Error("Invalid round");
-    }
-    if (match.round === "Final") {
+    const nextMatchOrder = Math.ceil(
+        match.match_order / 2
+    );
+    const nextRound = match.round_order + 1;
+    const nextMatchResult = await pool.query(
+        `
+        SELECT *
+        FROM matches
+        WHERE
+            stage_id = $1
+            AND round_order = $2
+            AND match_order = $3
+        `,
+        [
+            match.stage_id,
+            nextRound,
+            nextMatchOrder
+        ]
+    );
+    if (!nextMatchResult.rows.length) {
         await pool.query(
             `
             UPDATE tournaments
@@ -43,64 +52,18 @@ export const advanceWinner = async (matchId) => {
         );
         return;
     }
-    const nextRound = rounds[currentIndex + 1];
-    let nextMatchResult = await pool.query(
-        `
-        SELECT *
-        FROM matches
-        WHERE
-            tournament_id = $1
-            AND stage_id = $2
-            AND round = $3
-            AND match_order = $4
-        `,
-        [
-            match.tournament_id,
-            match.stage_id,
-            nextRound,
-            nextOrder
-        ]
-    );
-    let nextMatch;
-    if (!nextMatchResult.rows.length) {
-        nextMatchResult = await pool.query(
-            `
-            INSERT INTO matches
-            (
-                tournament_id,
-                stage_id,
-                round,
-                match_order,
-                status
-            )
-            VALUES
-            (
-                $1,
-                $2,
-                $3,
-                $4,
-                'pending'
-            )
-            RETURNING *
-            `,
-            [
-                match.tournament_id,
-                match.stage_id,
-                nextRound,
-                nextOrder
-            ]
-        );
-    }
-    nextMatch = nextMatchResult.rows[0];
+    const nextMatch = nextMatchResult.rows[0];
     if (!nextMatch.player_one_id) {
         await pool.query(
             `
             UPDATE matches
-            SET player_one_id = $1
+            SET
+                player_one_id = $1,
+                updated_at = CURRENT_TIMESTAMP
             WHERE id = $2
             `,
             [
-                match.winner_id,
+                winnerId,
                 nextMatch.id
             ]
         );
@@ -108,13 +71,56 @@ export const advanceWinner = async (matchId) => {
         await pool.query(
             `
             UPDATE matches
-            SET player_two_id = $1
+            SET
+                player_two_id = $1,
+                updated_at = CURRENT_TIMESTAMP
             WHERE id = $2
             `,
             [
-                match.winner_id,
+                winnerId,
                 nextMatch.id
             ]
+        );
+    }
+    const updatedMatchResult = await pool.query(
+        `
+        SELECT *
+        FROM matches
+        WHERE id = $1
+        `,
+        [nextMatch.id]
+    );
+    const updatedMatch = updatedMatchResult.rows[0];
+    const onlyOnePlayer =
+        (
+            updatedMatch.player_one_id &&
+            !updatedMatch.player_two_id
+        ) ||
+        (
+            !updatedMatch.player_one_id &&
+            updatedMatch.player_two_id
+        );
+    if (onlyOnePlayer) {
+        const automaticWinner =
+            updatedMatch.player_one_id ??
+            updatedMatch.player_two_id;
+        await pool.query(
+            `
+            UPDATE matches
+            SET
+                winner_id = $1,
+                status = 'finished',
+                played_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $2
+            `,
+            [
+                automaticWinner,
+                updatedMatch.id
+            ]
+        );
+        await advanceWinner(
+            updatedMatch.id
         );
     }
 };
