@@ -5,11 +5,33 @@ export const calculateByes = (entries) => {
     return totalSlots - entries;
 };
 
-export const insertByes = (entries) => {
-    const byes = calculateByes(entries.length);
-    const result = [...entries];
-    for (let i = 0; i < byes; i++) {
-        result.push(null);
+export const insertByes = (qualified) => {
+    if (qualified.length === 4) {
+        const a1 = qualified.find(
+            p => p.group === "A" && p.position === 1
+        );
+        const a2 = qualified.find(
+            p => p.group === "A" && p.position === 2
+        );
+        const b1 = qualified.find(
+            p => p.group === "B" && p.position === 1
+        );
+        const b2 = qualified.find(
+            p => p.group === "B" && p.position === 2
+        );
+        return [
+            a1,
+            b2,
+            b1,
+            a2
+        ];
     }
-    return result;
+    const byes = calculateByes(
+        qualified.length
+    );
+    const bracket = [...qualified];
+    for (let i = 0; i < byes; i++) {
+        bracket.push(null);
+    }
+    return bracket;
 };

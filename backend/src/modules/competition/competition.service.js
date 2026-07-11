@@ -5,6 +5,7 @@ import { generateRoundRobinMatches } from "../../helpers/groups/group.matches.js
 import { generateSeeds } from "../../helpers/bracket/seed.generator.js";
 import { calculateRounds } from "../../helpers/bracket/round.generator.js";
 import { insertByes } from "../../helpers/bracket/bye.generator.js";
+import { getQualifiedPlayers } from "../../helpers/groups/group.qualifiers.js";
 
 export const createCompetition = async (tournamentId) => {
     const tournament = await getTournamentById(tournamentId);
@@ -491,39 +492,26 @@ export const generateKnockout = async (competitionId) => {
     const groups = groupsResult.rows;
     const qualified = [];
     for (const group of groups) {
-        const standings = await getGroupStandings(
+        const standings = await getGroupRanking(
             group.id
         );
-        if (standings[0]) {
+        const qualifiers = standings.slice(0, 2);
+        qualifiers.forEach((player, index) => {
             qualified.push({
                 group: group.name,
-                position: 1,
-                ...standings[0]
+                position: index + 1,
+                ...player
             });
-        }
-        if (standings[1]) {
-            qualified.push({
-                group: group.name,
-                position: 2,
-                ...standings[1]
-            });
-        }
+        });
     }
     const bracket = insertByes(
         qualified
     );
-    const firstRound = calculateRounds(
-        bracket.length
-    )[0];
     await createKnockoutTree(
         bracket[0].tournament_id,
         knockoutStage.id,
         bracket.length
     );
-    const rounds = calculateRounds(
-        bracket.length
-    );
-    const firstRoundOrder = 1;
     let order = 1;
     for (let i = 0; i < bracket.length; i += 2) {
         const playerOne = bracket[i];
@@ -546,7 +534,9 @@ export const generateKnockout = async (competitionId) => {
             ]
         );
         if (!matchResult.rows.length) {
-            throw new Error("First round match not found");
+            throw new Error(
+                "First round match not found"
+            );
         }
         await pool.query(
             `

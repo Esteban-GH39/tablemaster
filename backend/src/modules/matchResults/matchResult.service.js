@@ -59,6 +59,9 @@ export const registerMatchResult = async (matchId, sets) => {
         throw new Error("Match not found");
     }
     const match = matchResult.rows[0];
+    if (match.status === "finished") {
+        throw new Error("Match already finished");
+    }
     validateMatch(sets)
     let playerOneSets = 0;
     let playerTwoSets = 0;
