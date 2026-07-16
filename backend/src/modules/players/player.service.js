@@ -14,7 +14,7 @@ const mapPlayer = (player) => ({
 })
 
 export const getAllPlayers = async () => {
-    const result = await pool.query(`SELECT * FROM players ORDER BY id`);
+    const result = await pool.query(`SELECT * FROM players ORDER BY full_name ASC`);
     return result.rows.map(mapPlayer);
 }
 

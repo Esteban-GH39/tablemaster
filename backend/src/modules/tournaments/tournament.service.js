@@ -15,7 +15,7 @@ export const getTournamentById = async (id) => {
         `
         SELECT *
         FROM tournaments
-        WHERE id = $1
+        ORDER BY created_at DESC
         `,
         [id]
     );

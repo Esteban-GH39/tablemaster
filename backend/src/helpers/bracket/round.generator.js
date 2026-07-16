@@ -26,5 +26,5 @@ export const calculateRounds = (entries) => {
         }
         players /= 2;
     }
-    return rounds.reverse();
+    return rounds;
 };

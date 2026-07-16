@@ -23,7 +23,7 @@ export const getPlayerByIdController = async (req, res) => {
 
 export const createPlayerController = async (req, res) => {
     try {
-    const newPlayer = createPlayer(req.body)
+    const newPlayer = await createPlayer(req.body)
     return res.status(201).json({
         message: "Player created successfully",
         player: newPlayer
@@ -68,7 +68,7 @@ export const deletePlayerController = async (req, res) => {
     try {
         const deletedPlayer = await deletePlayer(req.params.id);
         if (!deletedPlayer) {
-            res.status(404).json({ message: "Player not found" });
+            return res.status(404).json({ message: "Player not found" });
         } 
         return res.json({
             message: "Player deleted successfully",

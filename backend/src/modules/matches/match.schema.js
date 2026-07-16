@@ -2,13 +2,13 @@ import { z } from "zod";
 
 export const createMatchSchema = z.object({
     body: z.object({
-        tournamentId: z.number().int().positive(),
+        tournamentId: z.string().uuid(),
 
-        playerOneId: z.number().int().positive().nullable().optional(),
+        playerOneId: z.string().uuid().nullable().optional(),
 
-        playerTwoId: z.number().int().positive().nullable().optional(),
+        playerTwoId: z.string().uuid().nullable().optional(),
 
-        winnerId: z.number().int().positive().nullable().optional(),
+        winnerId: z.string().uuid().nullable().optional(),
 
         round: z.string().min(1).max(30),
 
@@ -29,3 +29,9 @@ export const updateMatchSchema = createMatchSchema;
 export const patchMatchSchema = z.object({
     body: createMatchSchema.shape.body.partial()
 }); 
+
+export const matchIdSchema = z.object({
+    params: z.object({
+        id: z.string().uuid()
+    })
+});

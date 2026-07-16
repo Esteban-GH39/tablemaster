@@ -43,11 +43,6 @@ export const createCompetition = async (tournamentId) => {
         ]
     );
     console.log("Competition created:", result.rows[0]);
-    const verify = await pool.query(
-        `
-        SELECT count(*) as total
-        FROM competitions
-        `);
     return result.rows[0];
 };
 
@@ -69,41 +64,6 @@ export const createStages = async (competitionId) => {
         [competitionId]
     );
     return result.rows;
-};
-
-const calculateGroups = (entries) => {
-    if (entries <= 8) return 2;
-    if (entries <= 16) return 4;
-    if (entries <= 32) return 8;
-    return Math.ceil(entries / 4);
-};
-
-const createGroups = async (stageId, totalEntries) => {
-    const totalGroups = calculateGroups(totalEntries);
-    const groups = [];
-    for (let i = 0; i < totalGroups; i++) {
-        const result = await pool.query(
-            `
-            INSERT INTO groups
-            (
-                stage_id,
-                name
-            )
-            VALUES
-            (
-                $1,
-                $2
-            )
-            RETURNING *
-            `,
-            [
-                stageId,
-                String.fromCharCode(65 + i)
-            ]
-        );
-        groups.push(result.rows[0]);
-    }
-    return groups;
 };
 
 const saveGroups = async (stageId, groups) => {
@@ -183,44 +143,6 @@ const getEntries = async (tournamentId) => {
         [tournamentId]
     );
     return result.rows;
-};
-
-const distributeEntries = async (groups, entries) => {
-    let direction = 1;
-    let index = 0;
-    for (const entry of entries) {
-        await pool.query(
-            `
-            INSERT INTO group_entries
-            (
-                group_id,
-                entry_id
-            )
-            VALUES
-            (
-                $1,
-                $2
-            )
-            `,
-            [
-                groups[index].id,
-                entry.id
-            ]
-        );
-        if (direction === 1) {
-            if (index === groups.length - 1) {
-                direction = -1;
-            } else {
-                index++;
-            }
-        } else {
-            if (index === 0) {
-                direction = 1;
-            } else {
-                index--;
-            }
-        }
-    }
 };
 
 const getGroupEntries = async (groupId) => {
@@ -471,9 +393,12 @@ const getKnockoutStage = async (competitionId) => {
 };
 
 export const generateKnockout = async (competitionId) => {
+    console.log("GENERATE KNOCKOUT");
+    console.log("Competition:", competitionId);
     const knockoutStage = await getKnockoutStage(
         competitionId
     );
+    console.log("Knockout stage:", knockoutStage);
     const groupsResult = await pool.query(
         `
         SELECT *
@@ -490,9 +415,10 @@ export const generateKnockout = async (competitionId) => {
         [competitionId]
     );
     const groups = groupsResult.rows;
+    console.log("Groups:", groups);
     const qualified = [];
     for (const group of groups) {
-        const standings = await getGroupRanking(
+        const standings = await getGroupStandings(
             group.id
         );
         const qualifiers = standings.slice(0, 2);
@@ -504,13 +430,26 @@ export const generateKnockout = async (competitionId) => {
             });
         });
     }
+    console.log("Qualified:", qualified);
     const bracket = insertByes(
         qualified
     );
+    console.log("Bracket:", bracket);
+    console.log("Creating knockout tree");
+    const competitionResult = await pool.query(
+    `
+    SELECT tournament_id
+    FROM competitions
+    WHERE id = $1
+    `,
+    [competitionId]
+    );
+    const tournamentId =
+    competitionResult.rows[0].tournament_id;
     await createKnockoutTree(
-        bracket[0].tournament_id,
-        knockoutStage.id,
-        bracket.length
+    tournamentId,
+    knockoutStage.id,
+    bracket.length
     );
     let order = 1;
     for (let i = 0; i < bracket.length; i += 2) {
@@ -555,14 +494,15 @@ export const generateKnockout = async (competitionId) => {
         );
         order++;
     }
+    console.log("Knockout generated successfully.");
 };
 
 const createKnockoutTree = async (tournamentId, stageId, totalPlayers) => {
     const rounds = calculateRounds(totalPlayers);
     let matchesInRound = totalPlayers / 2;
-    let roundOrder = 1;
-    for (const round of rounds) {
-        for (let order = 1; order <= matchesInRound; order++) {
+    for (let roundOrder = 0; roundOrder < rounds.length; roundOrder++) {
+        const round = rounds[roundOrder];
+        for (let matchOrder = 1; matchOrder <= matchesInRound; matchOrder++) {
             await pool.query(
                 `
                 INSERT INTO matches
@@ -576,25 +516,19 @@ const createKnockoutTree = async (tournamentId, stageId, totalPlayers) => {
                 )
                 VALUES
                 (
-                    $1,
-                    $2,
-                    $3,
-                    $4,
-                    $5,
-                    'pending'
+                    $1,$2,$3,$4,$5,'pending'
                 )
                 `,
                 [
                     tournamentId,
                     stageId,
                     round,
-                    roundOrder,
-                    order
+                    roundOrder + 1,
+                    matchOrder
                 ]
             );
         }
-        matchesInRound /= 2;
-        roundOrder++;
+        matchesInRound = Math.floor(matchesInRound / 2);
     }
 };
 
@@ -670,12 +604,15 @@ export const startCompetition = async (tournamentId) => {
     const stages = await createStages(
         competition.id
     );
-    const entries = await getEntries(
-        tournamentId
-    );
-    if (entries.length < 2) {
+    const entries = await getEntries(tournamentId);
+    if (entries.length < 4) {
         throw new Error(
-            "At least two entries are required"
+            "A tournament must have at least 4 entries."
+        );
+    }
+    if (entries.length % 2 !== 0) {
+        throw new Error(
+            "The number of entries must be even."
         );
     }
     const groupStage = stages.find(

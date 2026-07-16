@@ -6,5 +6,10 @@ const setSchema = z.object({
 });
 
 export const registerMatchResultSchema = z.object({
-    sets: z.array(setSchema).min(3).max(5)
+    params: z.object({
+        id: z.coerce.number().int().positive()
+    }),
+    body: z.object({
+        sets: z.array(setSchema).min(3).max(5)
+    })
 });

@@ -144,7 +144,10 @@ export const registerMatchResult = async (matchId, sets) => {
         const finished = await areGroupsFinished(
             competitionId
         );
+        console.log("Competition:", competitionId);
+        console.log("Groups finished:", finished);
         if (finished) {
+            console.log("Calling generateKnockout...");
             await generateKnockout(
                 competitionId
             );

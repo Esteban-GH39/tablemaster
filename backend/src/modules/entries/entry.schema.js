@@ -2,14 +2,12 @@ import { z } from "zod";
 
 export const createEntrySchema = z.object({
     playerId: z
-        .number()
-        .int()
-        .positive()
+        .string()
+        .uuid()
         .optional(),
     teamId: z
-        .number()
-        .int()
-        .positive()
+        .string()
+        .uuid()
         .optional(),
     seed: z
         .number()
@@ -24,3 +22,15 @@ export const createEntrySchema = z.object({
         message: "Exactly one of playerId or teamId is required"
     }
 );
+
+export const tournamentIdSchema = z.object({
+    params: z.object({
+        id: z.coerce.number().int().positive()
+    })
+});
+
+export const entryIdSchema = z.object({
+    params: z.object({
+        entryId: z.coerce.number().int().positive()
+    })
+});

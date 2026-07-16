@@ -8,6 +8,8 @@ import matchRoutes from "./modules/matches/match.routes.js";
 import matchResultRoutes from "./modules/matchResults/matchResult.routes.js";
 import competitionRoutes from "./modules/competition/competition.routes.js";
 import teamRoutes from "./modules/teams/team.routes.js";
+import statisticsRoutes from "./modules/statistics/statistics.routes.js";
+import rankingRoutes from "./modules/ranking/ranking.routes.js";
 
 const app = express();
 
@@ -19,6 +21,8 @@ app.use("/api/matches", matchRoutes);
 app.use("/api/matchResults", matchResultRoutes);
 app.use("/api/competition", competitionRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/statistics", statisticsRoutes);
+app.use("/api/ranking", rankingRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {

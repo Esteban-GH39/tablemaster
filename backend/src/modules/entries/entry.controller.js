@@ -2,7 +2,7 @@ import { createEntry, getEntries, deleteEntry } from "./entry.service.js";
 
 export const createEntryController = async (req, res, next) => {
     try {
-        const tournamentId = Number(req.params.id);
+        const tournamentId = req.params.id;
         const entry = await createEntry(
             tournamentId,
             req.body
@@ -15,7 +15,7 @@ export const createEntryController = async (req, res, next) => {
 
 export const getEntriesController = async (req, res, next) => {
     try {
-        const tournamentId = Number(req.params.id);
+        const tournamentId = req.params.id;
         const entries = await getEntries(
             tournamentId
         );
@@ -27,7 +27,7 @@ export const getEntriesController = async (req, res, next) => {
 
 export const deleteEntryController = async (req, res, next) => {
     try {
-        const entryId = Number(req.params.entryId);
+        const entryId = req.params.entryId;
         const entry = await deleteEntry(entryId);
         if (!entry) {
             return res.status(404).json({
