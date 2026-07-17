@@ -29,6 +29,7 @@ export const createPlayerController = async (req, res) => {
         player: newPlayer
     });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "Error creating player" });
     }
 }

@@ -89,14 +89,14 @@ const saveGroups = async (stageId, groups) => {
             ]
         );
         const savedGroup = groupResult.rows[0];
-        for (let i = 0; i < group.entries.length; i++) {
+        for (const entry of group.entries) {
+            console.log(entry)
             await pool.query(
                 `
                 INSERT INTO group_entries
                 (
                     group_id,
                     entry_id,
-                    position,
                     wins,
                     losses,
                     sets_won,
@@ -108,7 +108,6 @@ const saveGroups = async (stageId, groups) => {
                 (
                     $1,
                     $2,
-                    $3,
                     0,
                     0,
                     0,
@@ -119,8 +118,7 @@ const saveGroups = async (stageId, groups) => {
                 `,
                 [
                     savedGroup.id,
-                    group.entries[i].id,
-                    i + 1
+                    entry.id
                 ]
             );
         }
@@ -319,39 +317,15 @@ export const recalculateGroup = async (groupId) => {
             ]
         );
     }
-    const standings = await pool.query(
-        `
-        SELECT
-            ge.*
-        FROM group_entries ge
-        WHERE ge.group_id = $1
-        ORDER BY
-            wins DESC,
-            (sets_won - sets_lost) DESC,
-            (points_won - points_lost) DESC
-        `,
-        [groupId]
-    );
-    let position = 1;
-    for (const row of standings.rows) {
-        await pool.query(
-            `
-            UPDATE group_entries
-            SET position = $1
-            WHERE id = $2
-            `,
-            [
-                position++,
-                row.id
-            ]
-        );
-    }
     const updatedStandings = await pool.query(
         `
         SELECT *
         FROM group_entries
         WHERE group_id = $1
-        ORDER BY position
+        ORDER BY
+            wins DESC,
+            (sets_won - sets_lost) DESC,
+            (points_won - points_lost) DESC
         `,
         [groupId]
     );
@@ -636,7 +610,7 @@ export const startCompetition = async (tournamentId) => {
         `
         UPDATE tournaments
         SET
-            status = 'ongoing',
+            status = 'in_progress',
             updated_at = CURRENT_TIMESTAMP
         WHERE id = $1
         `,
