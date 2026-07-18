@@ -345,7 +345,9 @@ const getGroupStandings = async (groupId) => {
             ON te.id = ge.entry_id
         WHERE ge.group_id = $1
         ORDER BY
-            ge.position ASC
+            ge.wins DESC,
+            (ge.sets_won - ge.sets_lost) DESC,
+            (ge.points_won - ge.points_lost) DESC
         `,
         [groupId]
     );
