@@ -42,8 +42,40 @@ export const createCompetition = async (tournamentId) => {
             "groups_knockout"
         ]
     );
-    console.log("Competition created:", result.rows[0]);
-    return result.rows[0];
+    const competition = result.rows[0];
+    await pool.query(
+        `
+        UPDATE tournaments
+        SET
+            status = 'in_progress',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        `,
+        [tournamentId]
+    );
+    await pool.query(
+        `
+        UPDATE competitions
+        SET
+            status = 'running',
+            current_stage = 'groups',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        `,
+        [competition.id]
+    );
+    await pool.query(
+        `
+        UPDATE stages
+        SET
+            status = 'running'
+        WHERE
+            competition_id = $1
+            AND stage_type = 'groups'
+        `,
+        [competition.id]
+    );
+    return competition;
 };
 
 export const createStages = async (competitionId) => {
@@ -371,9 +403,7 @@ const getKnockoutStage = async (competitionId) => {
 export const generateKnockout = async (competitionId) => {
     console.log("GENERATE KNOCKOUT");
     console.log("Competition:", competitionId);
-    const knockoutStage = await getKnockoutStage(
-        competitionId
-    );
+    const knockoutStage = await getKnockoutStage(competitionId);
     console.log("Knockout stage:", knockoutStage);
     const groupsResult = await pool.query(
         `
@@ -394,9 +424,7 @@ export const generateKnockout = async (competitionId) => {
     console.log("Groups:", groups);
     const qualified = [];
     for (const group of groups) {
-        const standings = await getGroupStandings(
-            group.id
-        );
+        const standings = await getGroupStandings(group.id);
         const qualifiers = standings.slice(0, 2);
         qualifiers.forEach((player, index) => {
             qualified.push({
@@ -407,33 +435,27 @@ export const generateKnockout = async (competitionId) => {
         });
     }
     console.log("Qualified:", qualified);
-    const bracket = insertByes(
-        qualified
-    );
+    const bracket = insertByes(qualified);
     console.log("Bracket:", bracket);
-    console.log("Creating knockout tree");
     const competitionResult = await pool.query(
-    `
-    SELECT tournament_id
-    FROM competitions
-    WHERE id = $1
-    `,
-    [competitionId]
+        `
+        SELECT tournament_id
+        FROM competitions
+        WHERE id = $1
+        `,
+        [competitionId]
     );
-    const tournamentId =
-    competitionResult.rows[0].tournament_id;
+    const tournamentId = competitionResult.rows[0].tournament_id;
     await createKnockoutTree(
-    tournamentId,
-    knockoutStage.id,
-    bracket.length
+        tournamentId,
+        knockoutStage.id,
+        bracket.length
     );
     let order = 1;
     for (let i = 0; i < bracket.length; i += 2) {
         const playerOne = bracket[i];
         const playerTwo = bracket[i + 1];
-        if (!playerOne && !playerTwo) {
-            continue;
-        }
+        if (!playerOne && !playerTwo) continue;
         const matchResult = await pool.query(
             `
             SELECT *
@@ -449,9 +471,7 @@ export const generateKnockout = async (competitionId) => {
             ]
         );
         if (!matchResult.rows.length) {
-            throw new Error(
-                "First round match not found"
-            );
+            throw new Error("First round match not found");
         }
         await pool.query(
             `
@@ -470,6 +490,38 @@ export const generateKnockout = async (competitionId) => {
         );
         order++;
     }
+    await pool.query(
+        `
+        UPDATE stages
+        SET
+            status = 'finished'
+        WHERE
+            competition_id = $1
+            AND stage_type = 'groups'
+        `,
+        [competitionId]
+    );
+    await pool.query(
+        `
+        UPDATE stages
+        SET
+            status = 'running'
+        WHERE
+            competition_id = $1
+            AND stage_type = 'knockout'
+        `,
+        [competitionId]
+    );
+    await pool.query(
+        `
+        UPDATE competitions
+        SET
+            current_stage = 'knockout',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        `,
+        [competitionId]
+    );
     console.log("Knockout generated successfully.");
 };
 
