@@ -676,3 +676,92 @@ export const startCompetition = async (tournamentId) => {
         groups
     };
 };
+
+export const finishTournament = async (competitionId) => {
+    const competitionResult = await pool.query(
+        `
+        SELECT tournament_id
+        FROM competitions
+        WHERE id = $1
+        `,
+        [competitionId]
+    );
+    if (!competitionResult.rows.length) {
+        throw new Error("Competition not found");
+    }
+    const tournamentId = competitionResult.rows[0].tournament_id;
+    const finalResult = await pool.query(
+        `
+        SELECT
+            player_one_id,
+            player_two_id,
+            winner_id
+        FROM matches
+        WHERE
+            stage_id = (
+                SELECT id
+                FROM stages
+                WHERE
+                    competition_id = $1
+                    AND stage_type = 'knockout'
+            )
+            AND round = 'Final'
+        `,
+        [competitionId]
+    );
+    if (!finalResult.rows.length) {
+        throw new Error("Final match not found");
+    }
+    const final = finalResult.rows[0];
+    const championId = final.winner_id;
+    const runnerUpId =
+        championId === final.player_one_id
+            ? final.player_two_id
+            : final.player_one_id;
+    await pool.query(
+        `
+        UPDATE stages
+        SET
+            status = 'finished',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE
+            competition_id = $1
+            AND stage_type = 'knockout'
+        `,
+        [competitionId]
+    );
+    await pool.query(
+        `
+        UPDATE competitions
+        SET
+            status = 'finished',
+            current_stage = 'finished',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        `,
+        [competitionId]
+    );
+    await pool.query(
+        `
+        UPDATE tournaments
+        SET
+            status = 'finished',
+            champion_id = $1,
+            runner_up_id = $2,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $3
+        `,
+        [
+            championId,
+            runnerUpId,
+            tournamentId
+        ]
+    );
+    console.log("Tournament finished.");
+    console.log("Champion:", championId);
+    console.log("Runner up:", runnerUpId);
+    return {
+        championId,
+        runnerUpId
+    };
+};

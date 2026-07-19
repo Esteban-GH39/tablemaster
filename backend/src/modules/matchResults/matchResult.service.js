@@ -1,6 +1,7 @@
 import { pool } from "../../config/database.js";
-import { recalculateGroup, areGroupsFinished, generateKnockout } from "../competition/competition.service.js";
+import { recalculateGroup, areGroupsFinished, generateKnockout, finishTournament } from "../competition/competition.service.js";
 import { advanceWinner } from "../../helpers/bracket/bracket.advance.js"
+import { updateStatistics } from "../statistics/statistics.service.js";
 
 const validateSet = (playerOneScore, playerTwoScore) => {
     if (playerOneScore === playerTwoScore) {
@@ -62,7 +63,7 @@ export const registerMatchResult = async (matchId, sets) => {
     if (match.status === "finished") {
         throw new Error("Match already finished");
     }
-    validateMatch(sets)
+    validateMatch(sets);
     let playerOneSets = 0;
     let playerTwoSets = 0;
     let playerOnePoints = 0;
@@ -120,34 +121,80 @@ export const registerMatchResult = async (matchId, sets) => {
             matchId
         ]
     );
+    const competitionResult = await pool.query(
+        `
+        SELECT competition_id
+        FROM stages
+        WHERE id = $1
+        `,
+        [
+            match.stage_id
+        ]
+    );
+    const competitionId =
+        competitionResult.rows[0].competition_id;
+    const tournamentResult = await pool.query(
+        `
+        SELECT tournament_id
+        FROM competitions
+        WHERE id = $1
+        `,
+        [
+            competitionId
+        ]
+    );
+    const tournamentId =
+        tournamentResult.rows[0].tournament_id;
+    await updateStatistics(
+        tournamentId,
+        match.player_one_id,
+        winnerId === match.player_one_id,
+        playerOneSets,
+        playerTwoSets,
+        playerOnePoints,
+        playerTwoPoints
+    );
+    await updateStatistics(
+        tournamentId,
+        match.player_two_id,
+        winnerId === match.player_two_id,
+        playerTwoSets,
+        playerOneSets,
+        playerTwoPoints,
+        playerOnePoints
+    );
     const stageResult = await pool.query(
         `
         SELECT stage_type
         FROM stages
         WHERE id = $1
         `,
-        [match.stage_id]
+        [
+            match.stage_id
+        ]
     );
-    const stageType = stageResult.rows[0].stage_type;
+    const stageType =
+        stageResult.rows[0].stage_type;
     if (stageType === "groups") {
-        await recalculateGroup(match.group_id);
-        const competitionResult = await pool.query(
-            `
-            SELECT competition_id
-            FROM stages
-            WHERE id = $1
-            `,
-            [match.stage_id]
+        await recalculateGroup(
+            match.group_id
         );
-        const competitionId =
-            competitionResult.rows[0].competition_id;
-        const finished = await areGroupsFinished(
+        const finished =
+            await areGroupsFinished(
+                competitionId
+            );
+        console.log(
+            "Competition:",
             competitionId
         );
-        console.log("Competition:", competitionId);
-        console.log("Groups finished:", finished);
+        console.log(
+            "Groups finished:",
+            finished
+        );
         if (finished) {
-            console.log("Calling generateKnockout...");
+            console.log(
+                "Calling generateKnockout..."
+            );
             await generateKnockout(
                 competitionId
             );
@@ -156,6 +203,13 @@ export const registerMatchResult = async (matchId, sets) => {
         await advanceWinner(
             match.id
         );
+        if (match.round === "Final") {
+            console.log("Final finished.");
+            console.log("Finishing tournament...");
+            await finishTournament(
+                competitionId
+            );
+        }
     }
     return {
         winnerId,

@@ -4,20 +4,15 @@ export const getPlayerStatistics = async (playerId) => {
     const result = await pool.query(
         `
         SELECT
-            COUNT(*) FILTER (
-                WHERE status = 'finished'
-            ) AS matches_played,
-            COUNT(*) FILTER (
-                WHERE winner_id = $1
-            ) AS wins,
-            COUNT(*) FILTER (
-                WHERE status = 'finished'
-                AND winner_id <> $1
-            ) AS losses
-        FROM matches
-        WHERE
-            player_one_id = $1
-            OR player_two_id = $1
+            SUM(matches_played) AS matches_played,
+            SUM(matches_won) AS wins,
+            SUM(matches_lost) AS losses,
+            SUM(sets_won) AS sets_won,
+            SUM(sets_lost) AS sets_lost,
+            SUM(points_won) AS points_won,
+            SUM(points_lost) AS points_lost
+        FROM statistics
+        WHERE player_id = $1
         `,
         [playerId]
     );
@@ -28,7 +23,7 @@ export const getTournamentStatistics = async (tournamentId) => {
     const players = await pool.query(
         `
         SELECT COUNT(*) total
-        FROM tournament_entries
+        FROM statistics
         WHERE tournament_id = $1
         `,
         [tournamentId]
@@ -71,6 +66,99 @@ export const getTournamentStatistics = async (tournamentId) => {
         completion:
             totalMatches === 0
                 ? 0
-                : Math.round((finishedMatches / totalMatches) * 100                )
+                : Math.round(
+                    (finishedMatches / totalMatches) * 100
+                )
     };
+};
+
+export const updateStatistics = async (
+    tournamentId,
+    playerId,
+    won,
+    setsWon,
+    setsLost,
+    pointsWon,
+    pointsLost
+) => {
+    const exists = await pool.query(
+        `
+        SELECT id
+        FROM statistics
+        WHERE
+            tournament_id = $1
+            AND player_id = $2
+        `,
+        [
+            tournamentId,
+            playerId
+        ]
+    );
+    if (!exists.rows.length) {
+        await pool.query(
+            `
+            INSERT INTO statistics
+            (
+                tournament_id,
+                player_id,
+                matches_played,
+                matches_won,
+                matches_lost,
+                sets_won,
+                sets_lost,
+                points_won,
+                points_lost
+            )
+            VALUES
+            (
+                $1,
+                $2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            )
+            `,
+            [
+                tournamentId,
+                playerId
+            ]
+        );
+    }
+    await pool.query(
+        `
+        UPDATE statistics
+        SET
+            matches_played = matches_played + 1,
+            matches_won =
+                matches_won + $3,
+            matches_lost =
+                matches_lost + $4,
+            sets_won =
+                sets_won + $5,
+            sets_lost =
+                sets_lost + $6,
+            points_won =
+                points_won + $7,
+            points_lost =
+                points_lost + $8,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE
+            tournament_id = $1
+            AND player_id = $2
+        `,
+        [
+            tournamentId,
+            playerId,
+            won ? 1 : 0,
+            won ? 0 : 1,
+            setsWon,
+            setsLost,
+            pointsWon,
+            pointsLost
+        ]
+    );
 };
