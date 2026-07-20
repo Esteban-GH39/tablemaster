@@ -4,19 +4,28 @@ export const getPlayerStatistics = async (playerId) => {
     const result = await pool.query(
         `
         SELECT
-            SUM(matches_played) AS matches_played,
-            SUM(matches_won) AS wins,
-            SUM(matches_lost) AS losses,
-            SUM(sets_won) AS sets_won,
-            SUM(sets_lost) AS sets_lost,
-            SUM(points_won) AS points_won,
-            SUM(points_lost) AS points_lost
+            COALESCE(SUM(matches_played), 0) AS matches_played,
+            COALESCE(SUM(matches_won), 0) AS wins,
+            COALESCE(SUM(matches_lost), 0) AS losses,
+            COALESCE(SUM(sets_won), 0) AS sets_won,
+            COALESCE(SUM(sets_lost), 0) AS sets_lost,
+            COALESCE(SUM(points_won), 0) AS points_won,
+            COALESCE(SUM(points_lost), 0) AS points_lost
         FROM statistics
         WHERE player_id = $1
         `,
         [playerId]
     );
-    return result.rows[0];
+    const stats = result.rows[0];
+    return {
+        matchesPlayed: Number(stats.matches_played),
+        wins: Number(stats.wins),
+        losses: Number(stats.losses),
+        setsWon: Number(stats.sets_won),
+        setsLost: Number(stats.sets_lost),
+        pointsWon: Number(stats.points_won),
+        pointsLost: Number(stats.points_lost)
+    };
 };
 
 export const getTournamentStatistics = async (tournamentId) => {
@@ -81,6 +90,16 @@ export const updateStatistics = async (
     pointsWon,
     pointsLost
 ) => {
+    console.log("UPDATE STATISTICS");
+    console.log({
+        tournamentId,
+        playerId,
+        won,
+        setsWon,
+        setsLost,
+        pointsWon,
+        pointsLost
+    });
     const exists = await pool.query(
         `
         SELECT id
@@ -128,6 +147,20 @@ export const updateStatistics = async (
             ]
         );
     }
+    const inserted = await pool.query(
+        `
+        SELECT *
+        FROM statistics
+        WHERE
+            tournament_id = $1
+            AND player_id = $2
+        `,
+        [
+            tournamentId,
+            playerId
+        ]
+    );
+    console.log(inserted.rows);
     await pool.query(
         `
         UPDATE statistics

@@ -3,7 +3,7 @@ import { getPlayerStatistics, getTournamentStatistics } from "./statistics.servi
 export const getPlayerStatisticsController = async (req, res, next) => {
     try {
         const statistics = await getPlayerStatistics(
-            Number(req.params.id)
+            req.params.id
         );
         res.json(statistics);
     } catch (error) {
