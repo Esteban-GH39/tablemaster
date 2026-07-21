@@ -23,7 +23,7 @@ const runMigrations = async () => {
         );
         await pool.query(sql);
     }
-    console.log("✅ Database migrated");
+    console.log("Database migrated");
     process.exit();
 };
 

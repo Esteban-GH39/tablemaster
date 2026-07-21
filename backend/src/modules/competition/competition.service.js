@@ -446,6 +446,15 @@ export const generateKnockout = async (competitionId) => {
         [competitionId]
     );
     const tournamentId = competitionResult.rows[0].tournament_id;
+    const existingMatches = await pool.query(
+        `
+        SELECT 1
+        FROM matches
+        WHERE stage_id = $1
+        LIMIT 1
+        `,
+        [knockoutStage.id]
+    );
     await createKnockoutTree(
         tournamentId,
         knockoutStage.id,
@@ -706,6 +715,8 @@ export const finishTournament = async (competitionId) => {
                     AND stage_type = 'knockout'
             )
             AND round = 'Final'
+            AND status = 'finished'
+        LIMIT 1
         `,
         [competitionId]
     );
@@ -722,8 +733,7 @@ export const finishTournament = async (competitionId) => {
         `
         UPDATE stages
         SET
-            status = 'finished',
-            updated_at = CURRENT_TIMESTAMP
+            status = 'finished'
         WHERE
             competition_id = $1
             AND stage_type = 'knockout'

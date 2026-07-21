@@ -6,41 +6,24 @@ export const getGlobalRanking = async () => {
             p.id,
             p.full_name,
             p.club,
-            COUNT(m.id) FILTER (
-                WHERE m.status = 'finished'
-            ) AS matches_played,
-            COUNT(m.id) FILTER (
-                WHERE m.status = 'finished'
-                AND m.winner_id = p.id
-            ) AS wins,
-            COUNT(m.id) FILTER (
-                WHERE m.status = 'finished'
-                AND m.winner_id IS NOT NULL
-                AND m.winner_id <> p.id
-            ) AS losses,
+            COALESCE(SUM(s.matches_played), 0) AS matches_played,
+            COALESCE(SUM(s.matches_won), 0) AS wins,
+            COALESCE(SUM(s.matches_lost), 0) AS losses,
+            COALESCE(SUM(s.sets_won), 0) AS sets_won,
+            COALESCE(SUM(s.sets_lost), 0) AS sets_lost,
+            COALESCE(SUM(s.points_won), 0) AS points_won,
+            COALESCE(SUM(s.points_lost), 0) AS points_lost,
             ROUND(
                 (
-                    COUNT(m.id) FILTER (
-                        WHERE m.status = 'finished'
-                        AND m.winner_id = p.id
-                    )::numeric
+                    COALESCE(SUM(s.matches_won),0)::numeric
                     /
-                    NULLIF(
-                        COUNT(m.id) FILTER (
-                            WHERE m.status = 'finished'
-                        ),
-                        0
-                    )
+                    NULLIF(COALESCE(SUM(s.matches_played),0),0)
                 ) * 100,
                 2
             ) AS win_rate
         FROM players p
-        LEFT JOIN matches m
-            ON (
-                m.player_one_id = p.id
-                OR
-                m.player_two_id = p.id
-            )
+        LEFT JOIN statistics s
+            ON s.player_id = p.id
         GROUP BY
             p.id,
             p.full_name,
@@ -48,7 +31,8 @@ export const getGlobalRanking = async () => {
         ORDER BY
             wins DESC,
             win_rate DESC,
-            matches_played DESC,
+            sets_won DESC,
+            points_won DESC,
             p.full_name;
     `);
     return result.rows;
@@ -60,51 +44,31 @@ export const getTournamentRanking = async (tournamentId) => {
             p.id,
             p.full_name,
             p.club,
-            COUNT(m.id) FILTER (
-                WHERE m.status = 'finished'
-            ) AS matches_played,
-            COUNT(m.id) FILTER (
-                WHERE m.status = 'finished'
-                AND m.winner_id = p.id
-            ) AS wins,
-            COUNT(m.id) FILTER (
-                WHERE m.status = 'finished'
-                AND m.winner_id IS NOT NULL
-                AND m.winner_id <> p.id
-            ) AS losses,
+            s.matches_played,
+            s.matches_won AS wins,
+            s.matches_lost AS losses,
+            s.sets_won,
+            s.sets_lost,
+            s.points_won,
+            s.points_lost,
             ROUND(
                 (
-                    COUNT(m.id) FILTER (
-                        WHERE m.status = 'finished'
-                        AND m.winner_id = p.id
-                    )::numeric
+                    s.matches_won::numeric
                     /
-                    NULLIF(
-                        COUNT(m.id) FILTER (
-                            WHERE m.status = 'finished'
-                        ),
-                        0
-                    )
+                    NULLIF(s.matches_played,0)
                 ) * 100,
                 2
             ) AS win_rate
-        FROM players p
-        LEFT JOIN matches m
-            ON (
-                m.player_one_id = p.id
-                OR
-                m.player_two_id = p.id
-            )
-            AND m.tournament_id = $1
-        GROUP BY
-            p.id,
-            p.full_name,
-            p.club
+        FROM statistics s
+        INNER JOIN players p
+            ON p.id = s.player_id
+        WHERE s.tournament_id = $1
         ORDER BY
-            wins DESC,
+            s.matches_won DESC,
             win_rate DESC,
-            matches_played DESC,
+            s.sets_won DESC,
+            s.points_won DESC,
             p.full_name;
     `, [tournamentId]);
     return result.rows;
-}
+};
