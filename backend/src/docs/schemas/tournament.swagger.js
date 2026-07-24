@@ -51,8 +51,7 @@ export const tournamentSchemas = {
                     "in_progress",
                     "finished",
                     "cancelled"
-                ],
-                example: "finished"
+                ]
             },
             max_players: {
                 type: "integer",
@@ -62,14 +61,12 @@ export const tournamentSchemas = {
             champion_id: {
                 type: "string",
                 format: "uuid",
-                nullable: true,
-                example: "e44b1fb8-c1b5-4f9e-8914-ce92adf9bf3b"
+                nullable: true
             },
             runner_up_id: {
                 type: "string",
                 format: "uuid",
-                nullable: true,
-                example: "10d7e76d-a3e9-4456-a7df-e2acc3ecf54c"
+                nullable: true
             },
             created_at: {
                 type: "string",
@@ -78,6 +75,81 @@ export const tournamentSchemas = {
             updated_at: {
                 type: "string",
                 format: "date-time"
+            }
+        }
+    },
+
+    TournamentCreate: {
+        type: "object",
+        required: [
+            "name",
+            "location",
+            "startDate",
+            "endDate",
+            "maxPlayers"
+        ],
+        properties: {
+            name: {
+                type: "string",
+                example: "Open Medellín 2026"
+            },
+            description: {
+                type: "string",
+                example: "Torneo nacional"
+            },
+            location: {
+                type: "string",
+                example: "Medellín"
+            },
+            startDate: {
+                type: "string",
+                format: "date",
+                example: "2026-08-01"
+            },
+            endDate: {
+                type: "string",
+                format: "date",
+                example: "2026-08-03"
+            },
+            maxPlayers: {
+                type: "integer",
+                example: 32
+            }
+        }
+    },
+
+    TournamentUpdate: {
+        type: "object",
+        properties: {
+            name: {
+                type: "string"
+            },
+            description: {
+                type: "string"
+            },
+            location: {
+                type: "string"
+            },
+            startDate: {
+                type: "string",
+                format: "date"
+            },
+            endDate: {
+                type: "string",
+                format: "date"
+            },
+            status: {
+                type: "string",
+                enum: [
+                    "draft",
+                    "registration",
+                    "in_progress",
+                    "finished",
+                    "cancelled"
+                ]
+            },
+            maxPlayers: {
+                type: "integer"
             }
         }
     }

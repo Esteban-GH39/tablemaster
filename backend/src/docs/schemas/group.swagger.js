@@ -21,13 +21,40 @@ export const groupSchemas = {
             },
             name: {
                 type: "string",
-                description: "Group name.",
                 example: "Group A"
             },
             created_at: {
                 type: "string",
                 format: "date-time",
                 example: "2026-07-18T20:15:10.000Z"
+            }
+        }
+    },
+
+    GroupCreate: {
+        type: "object",
+        required: [
+            "stage_id",
+            "name"
+        ],
+        properties: {
+            stage_id: {
+                type: "string",
+                format: "uuid"
+            },
+            name: {
+                type: "string",
+                example: "Group A"
+            }
+        }
+    },
+
+    GroupUpdate: {
+        type: "object",
+        properties: {
+            name: {
+                type: "string",
+                example: "Group B"
             }
         }
     }

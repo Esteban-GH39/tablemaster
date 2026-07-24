@@ -25,8 +25,7 @@ export const stageSchemas = {
                 enum: [
                     "groups",
                     "knockout"
-                ],
-                example: "groups"
+                ]
             },
             status: {
                 type: "string",
@@ -34,13 +33,53 @@ export const stageSchemas = {
                     "pending",
                     "running",
                     "finished"
-                ],
-                example: "running"
+                ]
             },
             created_at: {
                 type: "string",
-                format: "date-time",
-                example: "2026-07-18T20:15:10.000Z"
+                format: "date-time"
+            }
+        }
+    },
+
+    StageCreate: {
+        type: "object",
+        required: [
+            "competition_id",
+            "stage_type"
+        ],
+        properties: {
+            competition_id: {
+                type: "string",
+                format: "uuid"
+            },
+            stage_type: {
+                type: "string",
+                enum: [
+                    "groups",
+                    "knockout"
+                ]
+            }
+        }
+    },
+
+    StageUpdate: {
+        type: "object",
+        properties: {
+            stage_type: {
+                type: "string",
+                enum: [
+                    "groups",
+                    "knockout"
+                ]
+            },
+            status: {
+                type: "string",
+                enum: [
+                    "pending",
+                    "running",
+                    "finished"
+                ]
             }
         }
     }

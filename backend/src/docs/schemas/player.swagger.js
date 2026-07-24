@@ -29,12 +29,10 @@ export const playerSchemas = {
             },
             gender: {
                 type: "string",
-                enum: ["male", "female"],
-                example: "male"
+                enum: ["male", "female"]
             },
             club: {
                 type: "string",
-                maxLength: 100,
                 nullable: true,
                 example: "Club Antioquia"
             },
@@ -44,18 +42,18 @@ export const playerSchemas = {
             },
             dominant_hand: {
                 type: "string",
-                enum: ["left", "right"],
-                example: "right"
+                enum: ["left", "right"]
             },
             play_style: {
                 type: "string",
-                enum: ["offensive", "defensive", "control"],
-                nullable: true,
-                example: "offensive"
+                enum: [
+                    "offensive",
+                    "defensive",
+                    "all-round"
+                ]
             },
             grip_type: {
                 type: "string",
-                maxLength: 50,
                 nullable: true,
                 example: "shakehand"
             },
@@ -66,6 +64,105 @@ export const playerSchemas = {
             updated_at: {
                 type: "string",
                 format: "date-time"
+            }
+        }
+    },
+
+    PlayerCreate: {
+        type: "object",
+        required: [
+            "fullName",
+            "age",
+            "gender",
+            "club",
+            "dominantHand",
+            "playStyle"
+        ],
+        properties: {
+            fullName: {
+                type: "string",
+                example: "Carlos Ramírez"
+            },
+            age: {
+                type: "integer",
+                example: 23
+            },
+            gender: {
+                type: "string",
+                enum: [
+                    "male",
+                    "female"
+                ]
+            },
+            club: {
+                type: "string",
+                example: "Club Antioquia"
+            },
+            dominantHand: {
+                type: "string",
+                enum: [
+                    "left",
+                    "right"
+                ]
+            },
+            playStyle: {
+                type: "string",
+                enum: [
+                    "offensive",
+                    "defensive",
+                    "all-round"
+                ]
+            },
+            gripType: {
+                type: "string",
+                enum: [
+                    "shakehand",
+                    "penhold"
+                ]
+            }
+        }
+    },
+
+    PlayerUpdate: {
+        type: "object",
+        properties: {
+            fullName: {
+                type: "string"
+            },
+            age: {
+                type: "integer"
+            },
+            gender: {
+                type: "string",
+                enum: [
+                    "male",
+                    "female"
+                ]
+            },
+            club: {
+                type: "string"
+            },
+            dominantHand: {
+                type: "string",
+                enum: [
+                    "left",
+                    "right"
+                ]
+            },
+            playStyle: {
+                type: "string",
+                enum: [
+                    "offensive",
+                    "defensive",
+                    "all-round"
+                ]
+            },
+            gripType: {
+                type: "string",
+                enum: [
+                    "shakehand",
+                    "penhold"
+                ]
             }
         }
     }

@@ -1,12 +1,12 @@
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Entries
  *   description: Tournament registrations
  */
 
 /**
- * @swagger
+ * @openapi
  * /entries:
  *   post:
  *     summary: Register a player in a tournament
@@ -17,7 +17,7 @@
  */
 
 /**
- * @swagger
+ * @openapi
  * /entries/tournament/{id}:
  *   get:
  *     summary: Get tournament entries

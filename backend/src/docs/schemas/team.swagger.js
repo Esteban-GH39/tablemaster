@@ -21,7 +21,12 @@ export const teamSchemas = {
             },
             type: {
                 type: "string",
-                enum: ["club", "selection", "school", "other"],
+                enum: [
+                    "club",
+                    "selection",
+                    "school",
+                    "other"
+                ],
                 example: "club"
             },
             created_at: {
@@ -31,6 +36,48 @@ export const teamSchemas = {
             updated_at: {
                 type: "string",
                 format: "date-time"
+            }
+        }
+    },
+
+    TeamCreate: {
+        type: "object",
+        required: [
+            "name",
+            "type"
+        ],
+        properties: {
+            name: {
+                type: "string",
+                example: "Club Bogotá TT"
+            },
+            type: {
+                type: "string",
+                enum: [
+                    "club",
+                    "selection",
+                    "school",
+                    "other"
+                ],
+                example: "club"
+            }
+        }
+    },
+
+    TeamUpdate: {
+        type: "object",
+        properties: {
+            name: {
+                type: "string"
+            },
+            type: {
+                type: "string",
+                enum: [
+                    "club",
+                    "selection",
+                    "school",
+                    "other"
+                ]
             }
         }
     }

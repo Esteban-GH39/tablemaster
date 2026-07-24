@@ -6,7 +6,7 @@
  */
 
 /**
- * @swagger
+ * @openapi
  * /teams:
  *   post:
  *     summary: Create a team
@@ -14,10 +14,16 @@
  *     responses:
  *       201:
  *         description: Team created successfully
+ *   requestBody:
+ *      required: true
+ *      content:
+ *          application/json:
+ *              schema:
+ *                 $ref: '#/components/schemas/TeamCreate' 
  */
 
 /**
- * @swagger
+ * @openapi
  * /teams:
  *   get:
  *     summary: Get all teams
@@ -61,6 +67,12 @@
  *     responses:
  *       200:
  *         description: Team updated successfully
+ *     requestBody:
+        required: true
+        content:
+            application/json:
+            schema:
+                $ref: '#/components/schemas/TeamUpdate'
  */
 
 /**

@@ -63,7 +63,7 @@ export const competitionSchemas = {
             }
         }
     },
-    CreateCompetition: {
+    CompetitionCreate: {
         type: "object",
         required: [
             "tournament_id",
@@ -81,6 +81,38 @@ export const competitionSchemas = {
                     "single_elimination",
                     "double_elimination",
                     "groups_knockout"
+                ]
+            }
+        }
+    },
+
+    CompetitionUpdate: {
+        type: "object",
+        properties: {
+            format: {
+                type: "string",
+                enum: [
+                    "round_robin",
+                    "single_elimination",
+                    "double_elimination",
+                    "groups_knockout"
+                ]
+            },
+            current_stage: {
+                type: "string",
+                enum: [
+                    "registration",
+                    "groups",
+                    "knockout",
+                    "finished"
+                ]
+            },
+            status: {
+                type: "string",
+                enum: [
+                    "pending",
+                    "running",
+                    "finished"
                 ]
             }
         }
