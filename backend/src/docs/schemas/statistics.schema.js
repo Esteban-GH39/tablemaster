@@ -1,4 +1,4 @@
-export const statisticsSchemas = {
+export const statisticsSchema = {
     Statistics: {
         type: "object",
         description: "Player statistics within a tournament.",

@@ -1,4 +1,4 @@
-export const groupSchemas = {
+export const groupSchema = {
     Group: {
         type: "object",
         description: "Represents a group within the group stage of a competition.",

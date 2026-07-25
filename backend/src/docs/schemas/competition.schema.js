@@ -1,4 +1,4 @@
-export const competitionSchemas = {
+export const competitionSchema = {
     Competition: {
         type: "object",
         description: "Competition associated with a tournament.",

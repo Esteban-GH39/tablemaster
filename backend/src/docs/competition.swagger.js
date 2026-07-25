@@ -12,7 +12,7 @@
  *     tags:
  *       - Competitions
  *     summary: Start a competition
- *     description: Starts the competition for a tournament by generating its stages and matches.
+ *     description: Starts the competition for a tournament by generating the competition stages and matches.
  *     parameters:
  *       - in: path
  *         name: id

@@ -1,4 +1,4 @@
-export const matchSchemas = {
+export const matchSchema = {
     Match: {
         type: "object",
         description: "Represents a table tennis match.",

@@ -1,4 +1,4 @@
-export const playerSchemas = {
+export const playerSchema = {
     Player: {
         type: "object",
         required: [

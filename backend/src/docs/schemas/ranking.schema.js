@@ -1,4 +1,4 @@
-export const rankingSchemas = {
+export const rankingSchema = {
     Ranking: {
         type: "object",
         description: "Ranking information for a player.",

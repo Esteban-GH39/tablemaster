@@ -1,11 +1,18 @@
 /**
  * @openapi
- * /match-results/{id}:
+ * tags:
+ *   name: Match Results
+ *   description: Match result registration
+ */
+
+/**
+ * @openapi
+ * /match-Results/{id}:
  *   post:
  *     tags:
  *       - Match Results
  *     summary: Register a match result
- *     description: Registers the result of a match and automatically determines the winner based on the sets played.
+ *     description: Registers the result of a match and automatically determines the winner based on the submitted sets.
  *     parameters:
  *       - in: path
  *         name: id
@@ -25,9 +32,9 @@
  *               - playerOneScore: 9
  *                 playerTwoScore: 11
  *               - playerOneScore: 11
- *                 playerTwoScore: 6
- *               - playerOneScore: 11
  *                 playerTwoScore: 7
+ *               - playerOneScore: 11
+ *                 playerTwoScore: 5
  *     responses:
  *       200:
  *         description: Match result registered successfully.

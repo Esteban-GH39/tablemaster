@@ -1,4 +1,4 @@
-export const teamSchemas = {
+export const teamSchema = {
     Team: {
         type: "object",
         required: [

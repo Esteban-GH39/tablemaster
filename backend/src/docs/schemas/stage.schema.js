@@ -1,4 +1,4 @@
-export const stageSchemas = {
+export const stageSchema = {
     Stage: {
         type: "object",
         description: "Competition stage.",

@@ -1,35 +1,58 @@
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Ranking
  *   description: Player rankings
  */
 
 /**
- * @swagger
- * /ranking/global:
+ * @openapi
+ * /ranking:
  *   get:
+ *     tags:
+ *       - Ranking
  *     summary: Get global ranking
- *     tags: [Ranking]
+ *     description: Returns the global ranking of all registered players.
  *     responses:
  *       200:
- *         description: Global ranking
+ *         description: Global ranking retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Ranking'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */
 
 /**
- * @swagger
+ * @openapi
  * /ranking/tournament/{id}:
  *   get:
+ *     tags:
+ *       - Ranking
  *     summary: Get tournament ranking
- *     tags: [Ranking]
+ *     description: Returns the ranking for a specific tournament.
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: Tournament ID
  *         schema:
  *           type: string
  *           format: uuid
  *     responses:
  *       200:
- *         description: Tournament ranking
+ *         description: Tournament ranking retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Ranking'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
  */

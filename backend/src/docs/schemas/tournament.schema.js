@@ -1,4 +1,4 @@
-export const tournamentSchemas = {
+export const tournamentSchema = {
     Tournament: {
         type: "object",
         required: [
