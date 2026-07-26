@@ -10,7 +10,7 @@ export const createMatchSchema = z.object({
 
         winnerId: z.string().uuid().nullable().optional(),
 
-        round: z.string().min(1).max(30),
+        round: z.string().trim().min(1).max(30),
 
         matchOrder: z.number().int().positive(),
 

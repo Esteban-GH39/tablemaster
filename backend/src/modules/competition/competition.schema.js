@@ -1,25 +1,19 @@
 import { z } from "zod";
 
-export const startCompetitionChema = z.object({
+export const startCompetitionSchema = z.object({
     params: z.object({
-        tournamentId: z.uuid()
+        id: z.string().uuid()
     })
 });
 
 export const finishGroupsSchema = z.object({
     params: z.object({
-        competitionId: z.uuid()
-            .number()
-            .int()
-            .positive()
+        id: z.string().uuid()
     })
 });
 
 export const finishCompetitionSchema = z.object({
     params: z.object({
-        competitionId: z.uuid()
-            .number()
-            .int()
-            .positive()
+        id: z.string().uuid()
     })
 });
