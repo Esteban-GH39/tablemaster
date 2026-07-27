@@ -1,22 +1,67 @@
 import { Router } from "express";
-import { getMatchesController, getMatchByIdController, createMatchController, updateMatchController, patchMatchController, deleteMatchController } from "./match.controller.js";
 
+import {
+    getMatchesController,
+    getMatchByIdController,
+    createMatchController,
+    updateMatchController,
+    patchMatchController,
+    deleteMatchController
+} from "./match.controller.js";
+
+import { auth } from "../../middlewares/auth.js";
+import { requireRole } from "../../middlewares/requireRole.js";
 import { validate } from "../../middlewares/validate.js";
 
-import { createMatchSchema, updateMatchSchema, patchMatchSchema, matchIdSchema } from "./match.schema.js";
+import {
+    createMatchSchema,
+    updateMatchSchema,
+    patchMatchSchema,
+    matchIdSchema
+} from "./match.schema.js";
 
 const router = Router();
 
 router.get("/", getMatchesController);
 
-router.get("/:id", validate(matchIdSchema), getMatchByIdController);
+router.get(
+    "/:id",
+    validate(matchIdSchema),
+    getMatchByIdController
+);
 
-router.post("/", validate(createMatchSchema), createMatchController);
+router.post(
+    "/",
+    auth,
+    requireRole("admin", "organizer"),
+    validate(createMatchSchema),
+    createMatchController
+);
 
-router.put("/:id", validate(matchIdSchema), validate(updateMatchSchema), updateMatchController);
+router.put(
+    "/:id",
+    auth,
+    requireRole("admin", "organizer"),
+    validate(matchIdSchema),
+    validate(updateMatchSchema),
+    updateMatchController
+);
 
-router.patch("/:id", validate(matchIdSchema), validate(patchMatchSchema), patchMatchController);
+router.patch(
+    "/:id",
+    auth,
+    requireRole("admin", "organizer"),
+    validate(matchIdSchema),
+    validate(patchMatchSchema),
+    patchMatchController
+);
 
-router.delete("/:id", validate(matchIdSchema), deleteMatchController);
+router.delete(
+    "/:id",
+    auth,
+    requireRole("admin"),
+    validate(matchIdSchema),
+    deleteMatchController
+);
 
 export default router;

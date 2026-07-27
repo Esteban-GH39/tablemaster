@@ -53,3 +53,39 @@ export const login = async (data) => {
     }
 
 }
+
+export const getMe = async (userId) => {
+    const { rows } = await pool.query(`
+        SELECT
+            u.id,
+            u.full_name,
+            u.email,
+            u.role,
+            p.id              AS player_id,
+            p.club,
+            p.ranking_points
+        FROM users u
+        LEFT JOIN players p
+            ON p.user_id = u.id
+        WHERE u.id = $1;
+    `, [userId]);
+    if (!rows.length) {
+        throw new Error("User not found");
+    }
+    const row = rows[0];
+    return {
+        user: {
+            id: row.id,
+            fullName: row.full_name,
+            email: row.email,
+            role: row.role
+        },
+        player: row.player_id
+            ? {
+                id: row.player_id,
+                club: row.club,
+                rankingPoints: row.ranking_points
+            }
+            : null
+    };
+};

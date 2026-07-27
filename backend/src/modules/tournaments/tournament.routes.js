@@ -41,6 +41,8 @@ router.post(
 
 router.put(
     "/:id",
+    auth,
+    requireRole("admin", "organizer"),
     validate(tournamentIdSchema),
     validate(updateTournamentSchema),
     updateTournamentController
@@ -48,6 +50,8 @@ router.put(
 
 router.patch(
     "/:id",
+    auth,
+    requireRole("admin", "organizer"),
     validate(tournamentIdSchema),
     validate(patchTournamentSchema),
     patchTournamentController
@@ -55,6 +59,8 @@ router.patch(
 
 router.delete(
     "/:id",
+    auth,
+    requireRole("admin"),
     validate(tournamentIdSchema),
     deleteTournamentController
 );

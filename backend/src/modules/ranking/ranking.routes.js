@@ -11,7 +11,10 @@ import {
 
 const router = Router();
 
-router.get("/", getGlobalRankingController);
+router.get(
+    "/",
+    getGlobalRankingController
+);
 
 router.get(
     "/tournament/:id",
