@@ -1,4 +1,5 @@
 import { pool } from "../../config/database.js";
+import { hashPassword } from "../../utils/password.js";
 
 export const getUsers = async () => {
     const { rows } = await pool.query(`
@@ -38,6 +39,7 @@ export const createUser = async(data)=>{
         password,
         role
     } = data;
+    const passwordHash = await hashPassword(password);
     const { rows } = await pool.query(`
         INSERT INTO users
         (
@@ -60,7 +62,7 @@ export const createUser = async(data)=>{
     [
         fullName,
         email,
-        password,
+        passwordHash,
         role
     ]);
     return rows[0];
@@ -72,7 +74,8 @@ export const updateUser = async(id,data)=>{
         email,
         password,
         role
-    }=data;
+    } = data;
+    const passwordHash = await hashPassword(password);
     const {rows}=await pool.query(`
         UPDATE users
         SET
@@ -94,7 +97,7 @@ export const updateUser = async(id,data)=>{
     [
         fullName,
         email,
-        password,
+        passwordHash,
         role,
         id
     ]);
