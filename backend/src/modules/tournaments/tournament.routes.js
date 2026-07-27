@@ -8,6 +8,10 @@ import {
     deleteTournamentController
 } from "./tournament.controller.js";
 
+import { auth } from "../../middlewares/auth.js";
+
+import { requireRole } from "../../middlewares/requireRole.js";
+
 import { validate } from "../../middlewares/validate.js";
 
 import {
@@ -29,6 +33,8 @@ router.get(
 
 router.post(
     "/",
+    auth,
+    requireRole("admin", "organizer"),
     validate(createTournamentSchema),
     createTournamentController
 );
