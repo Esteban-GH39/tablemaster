@@ -9,6 +9,7 @@ const mapPlayer = (player) => ({
     dominantHand: player.dominant_hand,
     playStyle: player.play_style,
     gripType: player.grip_type,
+    userId: player.user_Id,
     createdAt: player.created_at,
     updatedAt: player.updated_at
 })
@@ -23,12 +24,23 @@ export const getPlayerById = async (id) => {
     return result.rows.length ? mapPlayer(result.rows[0]) : null;
 }
 
+export const getPlayerByUserId = async (userId) => {
+    const result = await pool.query(
+        `SELECT * FROM players WHERE user_id = $1`,
+        [userId]
+    );
+
+    return result.rows.length
+        ? mapPlayer(result.rows[0])
+        : null;
+};
+
 export const createPlayer = async (playerData) => {
     const  {
-        fullName, age, gender, club, dominantHand, playStyle, gripType
+        fullName, age, gender, club, dominantHand, playStyle, gripType, userId
     } = playerData;
-    const result = await pool.query(`INSERT INTO players (full_name, age, gender, club, dominant_hand, play_style, grip_type)
-        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [fullName, age, gender, club, dominantHand, playStyle, gripType]);
+    const result = await pool.query(`INSERT INTO players (full_name, age, gender, club, dominant_hand, play_style, grip_type, user_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`, [fullName, age, gender, club, dominantHand, playStyle, gripType, userId]);
     return mapPlayer(result.rows[0]);
 }
 

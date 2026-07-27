@@ -1,5 +1,4 @@
-import {
-    getAllTournaments, getTournamentById, createTournament, updateTournament, patchTournament, deleteTournament } from "./tournament.service.js";
+import { getAllTournaments, getTournamentById, createTournament, updateTournament, patchTournament, deleteTournament } from "./tournament.service.js";
 
 export const getTournaments = async (req, res) => {
     try {

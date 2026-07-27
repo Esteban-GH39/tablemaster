@@ -8,6 +8,8 @@ import {
     deletePlayerController
 } from "./player.controller.js";
 
+import { auth } from "../../middlewares/auth.js"
+
 import { validate } from "../../middlewares/validate.js";
 
 import {
@@ -29,6 +31,7 @@ router.get(
 
 router.post(
     "/",
+    auth,
     validate(createPlayerSchema),
     createPlayerController
 );

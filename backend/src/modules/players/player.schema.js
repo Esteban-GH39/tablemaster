@@ -35,7 +35,8 @@ export const createPlayerSchema = z.object({
         gripType: z.enum([
             "shakehand",
             "penhold"
-        ]).optional()
+        ]).optional(),
+
     })
 });
 

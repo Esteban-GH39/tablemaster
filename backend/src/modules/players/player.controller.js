@@ -1,4 +1,4 @@
-import { getAllPlayers, getPlayerById, createPlayer, updatePlayer, patchPlayer, deletePlayer } from "./player.service.js";
+import { getAllPlayers, getPlayerById, getPlayerByUserId, createPlayer, updatePlayer, patchPlayer, deletePlayer } from "./player.service.js";
 
 export const getPlayers = async (req, res) => {
     try{
@@ -23,16 +23,27 @@ export const getPlayerByIdController = async (req, res) => {
 
 export const createPlayerController = async (req, res) => {
     try {
-    const newPlayer = await createPlayer(req.body)
-    return res.status(201).json({
-        message: "Player created successfully",
-        player: newPlayer
-    });
+        const existingPlayer = await getPlayerByUserId(req.user.id);
+        if (existingPlayer) {
+            return res.status(400).json({
+                message: "This user already has a player profile"
+            });
+        }
+        const newPlayer = await createPlayer({
+            ...req.body,
+            userId: req.user.id
+        });
+        return res.status(201).json({
+            message: "Player created successfully",
+            player: newPlayer
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error creating player" });
+        res.status(500).json({
+            message: "Error creating player"
+        });
     }
-}
+};
 
 export const updatePlayerController = async (req, res) => {
     try {
