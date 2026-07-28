@@ -61,7 +61,8 @@ export const getMe = async (userId) => {
             u.full_name,
             u.email,
             u.role,
-            p.id              AS player_id,
+            u.is_active,
+            p.id AS player_id,
             p.club,
             p.ranking_points
         FROM users u
@@ -78,7 +79,8 @@ export const getMe = async (userId) => {
             id: row.id,
             fullName: row.full_name,
             email: row.email,
-            role: row.role
+            role: row.role,
+            isActive: row.is_active
         },
         player: row.player_id
             ? {

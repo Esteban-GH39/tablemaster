@@ -10,6 +10,10 @@ import {
 
 import { auth } from "../../middlewares/auth.js"
 
+import { requireRole } from "../../middlewares/requireRole.js";
+
+import { playerOwner } from "../../middlewares/playerOwner.js";
+
 import { validate } from "../../middlewares/validate.js";
 
 import {
@@ -32,12 +36,16 @@ router.get(
 router.post(
     "/",
     auth,
+    requireRole("player"),
     validate(createPlayerSchema),
     createPlayerController
 );
 
 router.put(
     "/:id",
+    auth,
+    requireRole("admin", "organizer", "player"),
+    playerOwner,
     validate(playerIdSchema),
     validate(updatePlayerSchema),
     updatePlayerController
@@ -45,6 +53,9 @@ router.put(
 
 router.patch(
     "/:id",
+    auth,
+    requireRole("admin", "organizer", "player"),
+    playerOwner,
     validate(playerIdSchema),
     validate(patchPlayerSchema),
     patchPlayerController
@@ -52,6 +63,8 @@ router.patch(
 
 router.delete(
     "/:id",
+    auth,
+    requireRole("admin", "organizer"),
     validate(playerIdSchema),
     deletePlayerController
 );

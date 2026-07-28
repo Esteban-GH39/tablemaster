@@ -24,6 +24,16 @@ export const getPlayerById = async (id) => {
     return result.rows.length ? mapPlayer(result.rows[0]) : null;
 }
 
+export const getPlayerOwner = async (playerId) => {
+    const { rows } = await pool.query(`
+        SELECT
+            user_id
+        FROM players
+        WHERE id = $1;
+    `, [playerId]);
+    return rows[0];
+};
+
 export const getPlayerByUserId = async (userId) => {
     const result = await pool.query(
         `SELECT * FROM players WHERE user_id = $1`,
