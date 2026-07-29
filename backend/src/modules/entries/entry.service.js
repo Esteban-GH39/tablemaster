@@ -2,6 +2,7 @@ import { pool } from "../../config/database.js";
 
 import { getTournamentById } from "../tournaments/tournament.service.js";
 import { getPlayerById } from "../players/player.service.js";
+import { getTeamById } from "../teams/team.service.js";
 
 export const createEntry = async (tournamentId, entryData) => {
     const {
@@ -28,17 +29,23 @@ export const createEntry = async (tournamentId, entryData) => {
             throw new Error("Player not found");
         }
     }
+    if (teamId) {
+        const team = await getTeamById(teamId);
+        if (!team) {
+            throw new Error("Team not found");
+        }
+    }
     const alreadyRegistered = await pool.query(
         `
-        SELECT *
+        SELECT 1
         FROM tournament_entries
         WHERE tournament_id = $1
-        AND
-        (
+        AND (
             player_id = $2
             OR
             team_id = $3
         )
+        LIMIT 1;
         `,
         [
             tournamentId,
@@ -48,6 +55,17 @@ export const createEntry = async (tournamentId, entryData) => {
     );
     if (alreadyRegistered.rows.length) {
         throw new Error("Entry already registered");
+    }
+    const { rows } = await pool.query(
+        `
+        SELECT COUNT(*)::int AS total
+        FROM tournament_entries
+        WHERE tournament_id = $1;
+        `,
+        [tournamentId]
+    );
+    if (rows[0].total >= tournament.maxPlayers) {
+        throw new Error("Tournament is full");
     }
     const result = await pool.query(
         `
@@ -65,7 +83,7 @@ export const createEntry = async (tournamentId, entryData) => {
             $3,
             $4
         )
-        RETURNING *
+        RETURNING *;
         `,
         [
             tournamentId,
@@ -94,7 +112,7 @@ export const getEntries = async (tournamentId) => {
         WHERE te.tournament_id = $1
         ORDER BY
             te.seed NULLS LAST,
-            p.full_name
+            p.full_name;
         `,
         [tournamentId]
     );
@@ -107,7 +125,7 @@ export const deleteEntry = async (entryId) => {
         DELETE
         FROM tournament_entries
         WHERE id = $1
-        RETURNING *
+        RETURNING *;
         `,
         [entryId]
     );

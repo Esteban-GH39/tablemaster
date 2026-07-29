@@ -14,9 +14,10 @@ export const createCompetition = async (tournamentId) => {
     }
     const exists = await pool.query(
         `
-        SELECT *
+        SELECT 1
         FROM competitions
         WHERE tournament_id = $1
+        LIMIT 1;
         `,
         [tournamentId]
     );
@@ -35,47 +36,14 @@ export const createCompetition = async (tournamentId) => {
             $1,
             $2
         )
-        RETURNING *
+        RETURNING *;
         `,
         [
             tournamentId,
             "groups_knockout"
         ]
     );
-    const competition = result.rows[0];
-    await pool.query(
-        `
-        UPDATE tournaments
-        SET
-            status = 'in_progress',
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-        `,
-        [tournamentId]
-    );
-    await pool.query(
-        `
-        UPDATE competitions
-        SET
-            status = 'running',
-            current_stage = 'groups',
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-        `,
-        [competition.id]
-    );
-    await pool.query(
-        `
-        UPDATE stages
-        SET
-            status = 'running'
-        WHERE
-            competition_id = $1
-            AND stage_type = 'groups'
-        `,
-        [competition.id]
-    );
-    return competition;
+    return result.rows[0];
 };
 
 export const createStages = async (competitionId) => {
@@ -635,55 +603,76 @@ export const areGroupsFinished = async (competitionId) => {
 };
 
 export const startCompetition = async (tournamentId) => {
-    const competition = await createCompetition(
-        tournamentId
-    );
-    const stages = await createStages(
-        competition.id
-    );
-    const entries = await getEntries(tournamentId);
-    if (entries.length < 4) {
-        throw new Error(
-            "A tournament must have at least 4 entries."
+    await pool.query("BEGIN");
+    try {
+        const tournament = await getTournamentById(tournamentId);
+        if (!tournament) {
+            throw new Error("Tournament not found");
+        }
+        if (tournament.status !== "registration") {
+            throw new Error("Tournament is not open for registration");
+        }
+        const entries = await getEntries(tournamentId);
+        if (entries.length < 4) {
+            throw new Error(
+                "A tournament must have at least 4 entries."
+            );
+        }
+        const competition = await createCompetition(
+            tournamentId
         );
-    }
-    if (entries.length % 2 !== 0) {
-        throw new Error(
-            "The number of entries must be even."
+        const stages = await createStages(
+            competition.id
         );
+        const groupStage = stages.find(
+            stage => stage.stage_type === "groups"
+        );
+        if (!groupStage) {
+            throw new Error("Group stage was not created.");
+        }
+        const generatedGroups = generateGroups(entries);
+        if (!generatedGroups.length) {
+            throw new Error("Unable to generate groups.");
+        }
+        const groups = await saveGroups(
+            groupStage.id,
+            generatedGroups
+        );
+        await generateGroupMatches(
+            tournamentId,
+            groupStage.id,
+            groups
+        );
+        await pool.query(
+            `
+            UPDATE competitions
+            SET
+                status = 'running',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1;
+            `,
+            [competition.id]
+        );
+        await pool.query(
+            `
+            UPDATE tournaments
+            SET
+                status = 'in_progress',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1;
+            `,
+            [tournamentId]
+        );
+        await pool.query("COMMIT");
+        return {
+            competition,
+            stages,
+            groups
+        };
+    } catch (error) {
+        await pool.query("ROLLBACK");
+        throw error;
     }
-    const groupStage = stages.find(
-        stage => stage.stage_type === "groups"
-    );
-    
-    const generatedGroups = generateGroups(entries);
-
-    const groups = await saveGroups(
-        groupStage.id,
-        generatedGroups
-    );
-
-    await generateGroupMatches(
-        tournamentId,
-        groupStage.id,
-        groups
-    );
-
-    await pool.query(
-        `
-        UPDATE tournaments
-        SET
-            status = 'in_progress',
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-        `,
-        [tournamentId]
-    );
-    return {
-        competition,
-        stages,
-        groups
-    };
 };
 
 export const finishTournament = async (competitionId) => {
