@@ -7,18 +7,49 @@ import Tournaments from "../pages/Tournaments";
 import Ranking from "../pages/Ranking";
 import NotFound from "../pages/NotFound";
 
+import DashboardLayout from "../layouts/DashboardLayout";
+
 function AppRouter() {
     return (
         <BrowserRouter>
+
             <Routes>
-                <Route path = "/" element = {<Login />} />
-                <Route path = "/dashboard" element = {<Dashboard />} />
-                <Route path = "/players" element = {<Players />} />
-                <Route path = "/tournaments" element = {<Tournaments />} />
-                <Route path = "/ranking" element = {<Ranking />} />
-                <Route path = "*" element = {<NotFound />} />
+
+                <Route path="/" element={<Login />} />
+
+                <Route element={<DashboardLayout />}>
+
+                    <Route
+                        path="/dashboard"
+                        element={<Dashboard />}
+                    />
+
+                    <Route
+                        path="/players"
+                        element={<Players />}
+                    />
+
+                    <Route
+                        path="/tournaments"
+                        element={<Tournaments />}
+                    />
+
+                    <Route
+                        path="/ranking"
+                        element={<Ranking />}
+                    />
+
+                </Route>
+                
+                <Route
+                    path="*" 
+                    element={<NotFound />}
+                />
+
             </Routes>
+
         </BrowserRouter>
+
     );
 }
 
