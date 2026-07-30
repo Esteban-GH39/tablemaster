@@ -4,6 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { login } from "./auth.service";
 
+import "./Login.css";
+
+import Button from "../../components/ui/Button/Button";
+import Input from "../../components/ui/Input/Input";
+
 function Login() {
 
     const [email, setEmail] = useState("");
@@ -50,38 +55,55 @@ function Login() {
 
     return (
 
-        <div>
+        <div className="login-container">
 
-            <h1>Login</h1>
+            <div className="login-card">
 
-            <form onSubmit={handleSubmit}>
+                <h1 className="login-title">
+                    🏓 TableMaster
+                </h1>
 
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(event) => {
-                        setEmail(event.target.value);
-                    }}
-                />
+                <p className="login-subtitle">
+                    Sistema de Gestión de Torneos
+                </p>
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(event) => {
-                        setPassword(event.target.value);
-                    }}
-                />
-
-                <button
-                    type="submit"
-                    disabled={loading}
+                <form
+                    onSubmit={handleSubmit}
+                    className="login-form"
                 >
-                    {loading ? "Logging in..." : "Login"}
-                </button>
 
-            </form>
+                    <Input
+                        type="email"
+                        placeholder="Correo electrónico"
+                        value={email}
+                        onChange={(event) => {
+                            setEmail(event.target.value);
+                        }}
+                    />
+
+                    <Input
+                        type="password"
+                        placeholder="Contraseña"
+                        value={password}
+                        onChange={(event) => {
+                            setPassword(event.target.value);
+                        }}
+                    />
+
+                    <Button
+                        type="submit"
+                        disabled={loading}
+                    >
+                        {
+                            loading
+                                ? "Iniciando sesión..."
+                                : "Iniciar sesión"
+                        }
+                    </Button>
+
+                </form>
+
+            </div>
 
         </div>
 

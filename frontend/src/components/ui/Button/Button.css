@@ -1,0 +1,25 @@
+.tm-button {
+    width: 100%;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 10px;
+    background-color: #006341;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .25s ease;
+}
+
+.tm-button:hover:not(:disabled) {
+    background-color: #004d32;
+}
+
+.tm-button:active:not(:disabled) {
+    transform: scale(.98);
+}
+
+.tm-button:disabled {
+    background-color: #9bb9ae;
+    cursor: not-allowed;
+}
