@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
 
-import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Players from "../pages/Players";
 import Tournaments from "../pages/Tournaments";
@@ -12,6 +11,8 @@ import Statistics from "../pages/Statistics";
 import NotFound from "../pages/NotFound";
 
 import DashboardLayout from "../layouts/DashboardLayout";
+
+import Login from "../features/auth/Login";
 
 function AppRouter() {
     return (
