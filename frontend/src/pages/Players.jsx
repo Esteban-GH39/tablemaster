@@ -1,5 +1,7 @@
+import PlayersPage from "../features/players/PlayerPage";
+
 function Players() {
-    return <h1>Players</h1>;
+    return <PlayersPage />;
 }
 
 export default Players;

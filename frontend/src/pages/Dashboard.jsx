@@ -2,7 +2,7 @@ import StatCard from "../components/dashboard/StatCard";
 import "./Dashboard.css";
 
 import { useEffect, useState } from "react";
-import { users, Trophy, Shield, Target } from "lucide-react"
+import { Users, Trophy, Shield, Target } from "lucide-react"
 
 import { getPlayers } from "../services/players.service";
 import { getTeams } from "../services/teams.service";
