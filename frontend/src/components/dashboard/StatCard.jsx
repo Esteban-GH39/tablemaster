@@ -3,19 +3,30 @@ import "./StatCard.css";
 function StatCard({
     title,
     value,
-    icon
+    icon,
+    description = "",
+    action = "View details"
 }) {
+    
     return (
         <div className="stat-card">
-            <div className="stat-icon">
-                {icon}
+            <div className="stat-card-header">
+                <span className="stat-icon">
+                    {icon}
+                </span>
+                <h3>
+                    {title}
+                </h3>
             </div>
-            <h3>
-                {title}
-            </h3>
-            <p>
+            <h2 className="stat-value">
                 {value}
+            </h2>
+            <p className="stat-description">
+                {description}
             </p>
+            <button className="stat-link">
+                {action} →
+            </button>
         </div>
     );
 }

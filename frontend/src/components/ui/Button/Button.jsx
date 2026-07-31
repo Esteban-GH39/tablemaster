@@ -1,17 +1,18 @@
 import "./Button.css";
 
-function Button ({
+function Button({
     children,
-    type = "button",
     onClick,
+    type = "button",
+    variant = "primary",
     disabled = false
 }) {
     return (
         <button
-            className="tm-button"
             type={type}
             onClick={onClick}
             disabled={disabled}
+            className={`button button-${variant}`}
         >
             {children}
         </button>

@@ -2,6 +2,7 @@ import StatCard from "../components/dashboard/StatCard";
 import "./Dashboard.css";
 
 import { useEffect, useState } from "react";
+import { users, Trophy, Shield, Target } from "lucide-react"
 
 import { getPlayers } from "../services/players.service";
 import { getTeams } from "../services/teams.service";
@@ -51,23 +52,28 @@ function Dashboard() {
                 <StatCard
                     title="Players"
                     value={players.length}
-                    icon="👥"
+                    description="Registered Players"
+                    icon={<Users size={32} />}
                 />
                 <StatCard
                     title="Teams"
                     value={teams.length}
-                    icon="🏓"
+                    description="Active Teams"
+                    icon={<Shield size={32} />}
                 />
                 <StatCard
                     title="Tournaments"
                     value={tournaments.length}
-                    icon="🏆"
+                    description="Created Tournaments"
+                    icon={<Trophy size={32} />}
                 />
                 <StatCard
                     title="Matches"
                     value={matches.length}
-                    icon="🎯"
+                    description="Played Matches"
+                    icon={<Target size={32} />}
                 />
+
             </div>
         </div>
     );
