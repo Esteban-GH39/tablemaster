@@ -4,19 +4,39 @@ import "./Dashboard.css";
 import { useEffect, useState } from "react";
 
 import { getPlayers } from "../services/players.service";
+import { getTeams } from "../services/teams.service";
+import { getTournaments } from "../services/tournaments.service";
+import { getMatches } from "../services/matches.service";
 
 function Dashboard() {
     const [players, setPlayers] = useState([]);
+    const [teams, setTeams] = useState([]);
+    const [tournaments, setTournaments] = useState([]);
+    const [matches, setMatches] = useState([]);
+
         useEffect(() => {
-        const loadPlayers = async () => {
+        const loadDashboard = async () => {
             try {
-                const data = await getPlayers();
-                setPlayers(data);
+                const [
+                    playersData,
+                    teamsData,
+                    tournamentsData,
+                    matchesData
+                ] = await Promise.all([
+                    getPlayers(),
+                    getTeams(),
+                    getTournaments(),
+                    getMatches()
+                ]);
+                setPlayers(playersData);
+                setTeams(teamsData);
+                setTournaments(tournamentsData);
+                setMatches(matchesData);
             } catch (error) {
                 console.error(error);
             }
         };
-        loadPlayers();
+        loadDashboard();
     }, []);
     
     return (
@@ -30,22 +50,22 @@ function Dashboard() {
             <div className="dashboard-grid">
                 <StatCard
                     title="Players"
-                    value="16"
+                    value={players.length}
                     icon="👥"
                 />
                 <StatCard
                     title="Teams"
-                    value="4"
+                    value={teams.length}
                     icon="🏓"
                 />
                 <StatCard
                     title="Tournaments"
-                    value="2"
+                    value={tournaments.length}
                     icon="🏆"
                 />
                 <StatCard
                     title="Matches"
-                    value="18"
+                    value={matches.length}
                     icon="🎯"
                 />
             </div>
