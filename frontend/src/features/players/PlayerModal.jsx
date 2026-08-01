@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 
-import "./player.css";
+import "./Player.css";
 
 import PlayerForm from "./PlayerForm";
 

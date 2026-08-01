@@ -16,8 +16,12 @@ import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 
+const origenesPermitidos = (process.env.FRONTEND_URL || "http://localhost:5173")
+    .split(",")
+    .map((url) => url.trim());
+
 app.use(express.json());
-app.use(cors({origin: "http://localhost:5173", credentials: true}));
+app.use(cors({ origin: origenesPermitidos, credentials: true }));
 app.use("/api/players", playerRoutes);
 app.use("/api/tournaments", tournamentRoutes);
 app.use("/api/tournaments", entryRoutes);
@@ -36,7 +40,5 @@ app.get("/", (req, res) => {
     message: "TableMaster API"
   });
 });
-
-
 
 export default app;

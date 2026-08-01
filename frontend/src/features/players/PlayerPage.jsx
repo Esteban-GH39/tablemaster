@@ -8,7 +8,7 @@ import SearchBar from "../../components/ui/SearchBar/SearchBar";
 import Button from "../../components/ui/Button/Button";
 import PlayerModal from "./PlayerModal";
 
-import "./player.css";
+import "./Player.css";
 
 function PlayerPage() {
     const [players, setPlayers] = useState([]);

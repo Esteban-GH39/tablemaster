@@ -12,3 +12,11 @@ export const createPlayer = async (player) => {
     );
     return response.data;
 };
+
+export const updatePlayer = async (id, player) => {
+    const response = await apiClient.put(
+        `/players/${id}`,
+        player
+    );
+    return response.data;
+};
