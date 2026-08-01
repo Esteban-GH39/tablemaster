@@ -2,7 +2,7 @@ import { MoreVertical } from "lucide-react";
 
 import Avatar from "../../components/ui/Avatar/Avatar";
 
-function PlayerRow({ player }) {
+function PlayerRow({ player, onEdit }) {
     return (
         <tr>
             <td>
@@ -16,7 +16,7 @@ function PlayerRow({ player }) {
             <td>{player.playStyle}</td>
             <td>{player.dominantHand}</td>
             <td>
-                <button className="icon-button">
+                <button className="icon-button" onClick={() => onEdit(player)}>
                     <MoreVertical size={18}/>
                 </button>
             </td>

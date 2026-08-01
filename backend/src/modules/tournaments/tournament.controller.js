@@ -32,7 +32,10 @@ export const getTournamentByIdController = async (req, res) => {
 
 export const createTournamentController = async (req, res) => {
     try {
-        const tournament = await createTournament(req.body);
+        const tournament = await createTournament({
+            ...req.body,
+            createdBy: req.user.id
+        });
 
         res.status(201).json({
             message: "Tournament created successfully",

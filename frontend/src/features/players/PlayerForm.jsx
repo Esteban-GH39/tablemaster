@@ -1,17 +1,17 @@
 import { useState } from "react";
 
-import { createPlayer } from "../../services/players.service";
+import { createPlayer, updatePlayer } from "../../services/players.service";
 
-function PlayerForm({ onSuccess }) {
+function PlayerForm({ player, onSuccess }) {
 
     const [formData, setFormData] = useState({
-        fullName: "",
-        age: "",
-        gender: "male",
-        club: "",
-        dominantHand: "right",
-        playStyle: "offensive",
-        gripType: "shakehand"
+        fullName: player?.fullName ?? "",
+        age: player?.age ?? "",
+        gender: player?.gender ?? "male",
+        club: player?.club ?? "",
+        dominantHand: player?.dominantHand ?? "right",
+        playStyle: player?.playStyle ?? "offensive",
+        gripType: player?.gripType ?? "shakehand"
     });
 
     const handleChange = (event) => {
@@ -30,7 +30,11 @@ function PlayerForm({ onSuccess }) {
                 ...formData,
                 age: Number(formData.age)
             };
-            const player = await createPlayer(newPlayer);
+            if (player) {
+                await updatePlayer(player.id, newPlayer);
+            } else {
+                await createPlayer(newPlayer);
+            }
             onSuccess();
         } catch (error) {
             console.error(error);

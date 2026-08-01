@@ -30,7 +30,8 @@ export const createTournament = async (tournamentData) => {
         startDate,
         endDate,
         status,
-        maxPlayers
+        maxPlayers,
+        createdBy
     } = tournamentData;
 
     const result = await pool.query(
@@ -43,9 +44,10 @@ export const createTournament = async (tournamentData) => {
             start_date,
             end_date,
             status,
-            max_players
+            max_players,
+            created_by
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
         RETURNING *
         `,
         [
@@ -55,7 +57,8 @@ export const createTournament = async (tournamentData) => {
             startDate,
             endDate,
             status ?? "draft",
-            maxPlayers
+            maxPlayers,
+            createdBy
         ]
     );
     return result.rows[0];

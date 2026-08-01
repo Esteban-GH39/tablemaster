@@ -12,6 +12,7 @@ import "./player.css";
 
 function PlayerPage() {
     const [players, setPlayers] = useState([]);
+    const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -31,6 +32,11 @@ function PlayerPage() {
     const handlePlayerCreated = () => {
         setIsModalOpen(false);
         loadPlayers();
+    }
+
+    const handleEditPlayer = (player) => {
+        setSelectedPlayer(player);
+        setIsModalOpen(true);
     }
 
     const filteredPlayers = players.filter((player) =>
