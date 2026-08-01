@@ -74,3 +74,67 @@
     padding: 32px;
     box-shadow: var(--shadow-lg);
 }
+
+.modal-close{
+    position:absolute;
+    top:18px;
+    right:18px;
+    border:none;
+    background:none;
+    cursor:pointer;
+    color:var(--color-gray-600);
+    transition:var(--transition);
+}
+
+.modal-close:hover{
+    color:var(--color-primary);
+}
+
+.player-modal{
+    position:relative;
+}
+
+.player-form{
+    display:grid;
+    gap:18px;
+    margin-top:24px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.form-group label{
+    font-weight:600;
+    color:var(--color-gray-700);
+}
+
+.form-group input,
+.form-group select{
+    padding:12px;
+    border:1px solid var(--color-gray-300);
+    border-radius:10px;
+    font-size:15px;
+    outline:none;
+    transition:var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color:var(--color-primary);
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    margin-top:30px;
+}

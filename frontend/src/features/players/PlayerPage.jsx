@@ -15,8 +15,7 @@ function PlayerPage() {
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    useEffect(() => {
-        const loadPlayers = async () => {
+    const loadPlayers = async () => {
             try {
                 const data = await getPlayers();
                 setPlayers(data);
@@ -24,8 +23,15 @@ function PlayerPage() {
                 console.error(error);
             }
         };
+
+    useEffect(() => {
         loadPlayers();
     }, []);
+
+    const handlePlayerCreated = () => {
+        setIsModalOpen(false);
+        loadPlayers();
+    }
 
     const filteredPlayers = players.filter((player) =>
         player.fullName.toLowerCase().includes(search.toLowerCase())
@@ -44,7 +50,9 @@ function PlayerPage() {
                     + New Player
                 </Button>
                 {
-                    isModalOpen && (<PlayerModal />)
+                    isModalOpen && (<PlayerModal 
+                                        onClose={() => setIsModalOpen(false)}
+                                        onSuccess={handlePlayerCreated}/>)
                 }
             </div>
             <SearchBar

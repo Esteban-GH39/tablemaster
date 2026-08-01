@@ -1,15 +1,24 @@
+import { X } from "lucide-react";
+
 import "./player.css";
 
-function PlayerModal() {
+import PlayerForm from "./PlayerForm";
+
+function PlayerModal({ onClose, onSuccess }) {
     return (
         <div className="modal-overlay">
             <div className="player-modal">
+                <button
+                    className="modal-close"
+                    onClick={onClose}
+                >
+                    <X size={20} />
+                </button>
                 <h2>
                     New Player
                 </h2>
-                <p>
-                    Formulario aquí
-                </p>
+                <PlayerForm
+                    onSuccess={onSuccess}/>
             </div>
         </div>
     );

@@ -36,7 +36,7 @@ router.get(
 router.post(
     "/",
     auth,
-    requireRole("player"),
+    requireRole("admin", "organizer", "player"),
     validate(createPlayerSchema),
     createPlayerController
 );
