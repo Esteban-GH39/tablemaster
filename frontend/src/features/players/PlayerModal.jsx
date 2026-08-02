@@ -4,7 +4,7 @@ import "./Player.css";
 
 import PlayerForm from "./PlayerForm";
 
-function PlayerModal({ onClose, onSuccess }) {
+function PlayerModal({ player, onClose, onSuccess }) {
     return (
         <div className="modal-overlay">
             <div className="player-modal">
@@ -15,10 +15,13 @@ function PlayerModal({ onClose, onSuccess }) {
                     <X size={20} />
                 </button>
                 <h2>
-                    New Player
+                    {player ? "Edit Player" : "New Player"}
                 </h2>
                 <PlayerForm
-                    onSuccess={onSuccess}/>
+                    player={player}
+                    onSuccess={onSuccess}
+                    onClose={onClose}
+                />
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getPlayers } from "../../services/players.service";
+import { getPlayers, deletePlayer } from "../../services/players.service";
 
 import PlayerTable from "./PlayerTable";
 
@@ -31,12 +31,41 @@ function PlayerPage() {
 
     const handlePlayerCreated = () => {
         setIsModalOpen(false);
+        setSelectedPlayer(null);
         loadPlayers();
+    }
+
+    const handleNewPlayer = () => {
+        setSelectedPlayer(null);
+        setIsModalOpen(true);
     }
 
     const handleEditPlayer = (player) => {
         setSelectedPlayer(player);
         setIsModalOpen(true);
+    }
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedPlayer(null);
+    }
+
+    const handleDeletePlayer = async (player) => {
+        const confirmed = window.confirm(
+            `Delete ${player.fullName}? This cannot be undone.`
+        );
+        if (!confirmed) return;
+
+        try {
+            await deletePlayer(player.id);
+            loadPlayers();
+        } catch (error) {
+            console.error(error);
+            alert(
+                error.response?.data?.message ||
+                "Error deleting player"
+            );
+        }
     }
 
     const filteredPlayers = players.filter((player) =>
@@ -52,13 +81,17 @@ function PlayerPage() {
                         Manage all registered players
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={handleNewPlayer}>
                     + New Player
                 </Button>
                 {
-                    isModalOpen && (<PlayerModal 
-                                        onClose={() => setIsModalOpen(false)}
-                                        onSuccess={handlePlayerCreated}/>)
+                    isModalOpen && (
+                        <PlayerModal
+                            player={selectedPlayer}
+                            onClose={handleCloseModal}
+                            onSuccess={handlePlayerCreated}
+                        />
+                    )
                 }
             </div>
             <SearchBar
@@ -68,7 +101,11 @@ function PlayerPage() {
                     setSearch(event.target.value);
                 }}
             />
-            <PlayerTable players={filteredPlayers} />
+            <PlayerTable
+                players={filteredPlayers}
+                onEdit={handleEditPlayer}
+                onDelete={handleDeletePlayer}
+            />
         </div>
     );
 }

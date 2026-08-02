@@ -1,8 +1,7 @@
+import Avatar from "../../components/ui/Avatar/Avatar";
 import ActionMenu from "../../components/ui/ActionMenu/ActionMenu";
 
-import Avatar from "../../components/ui/Avatar/Avatar";
-
-function PlayerRow({ player, onEdit }) {
+function PlayerRow({ player, onEdit, onDelete }) {
     return (
         <tr>
             <td>
@@ -13,13 +12,15 @@ function PlayerRow({ player, onEdit }) {
             <td>{player.fullName}</td>
             <td>{player.club}</td>
             <td>{player.age}</td>
-            <td>{player.playStyle}</td>
-            <td>{player.dominantHand}</td>
+            <td><span className="player-tag">{player.playStyle}</span></td>
+            <td><span className="player-tag">{player.dominantHand}</span></td>
             <td>
-                <ActionMenu 
-                    onEdit={() => onEdit(player)}
-                    onDelete={() => console.log("Delete", player.id)}
-                />
+                <div className="player-actions-cell">
+                    <ActionMenu
+                        onEdit={() => onEdit(player)}
+                        onDelete={() => onDelete(player)}
+                    />
+                </div>
             </td>
         </tr>
     );

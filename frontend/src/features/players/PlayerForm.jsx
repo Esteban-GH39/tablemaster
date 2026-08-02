@@ -1,8 +1,9 @@
 import { useState } from "react";
 
 import { createPlayer, updatePlayer } from "../../services/players.service";
+import Button from "../../components/ui/Button/Button";
 
-function PlayerForm({ player, onSuccess }) {
+function PlayerForm({ player, onSuccess, onClose }) {
 
     const [formData, setFormData] = useState({
         fullName: player?.fullName ?? "",
@@ -125,18 +126,16 @@ function PlayerForm({ player, onSuccess }) {
                 </div>
             </div>
             <div className="form-actions">
-                <button
+                <Button
                     type="button"
-                    className="btn-secondary"
+                    variant="secondary"
+                    onClick={onClose}
                 >
                     Cancel
-                </button>
-                <button
-                    type="submit"
-                    className="btn-primary"
-                >
+                </Button>
+                <Button type="submit">
                     Save Player
-                </button>
+                </Button>
             </div>
         </form>
     );

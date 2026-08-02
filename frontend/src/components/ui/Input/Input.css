@@ -1,9 +1,12 @@
 .tm-input {
     width: 100%;
     padding: 14px 16px;
-    border: 1px solid #cfcfcf;
+    background: var(--input-bg);
+    color: var(--input-text);
+    border: 1px solid var(--input-border);
     border-radius: 10px;
     font-size: 1rem;
+    font-family: inherit;
     outline: none;
     transition: all .25s ease;
     box-sizing: border-box;

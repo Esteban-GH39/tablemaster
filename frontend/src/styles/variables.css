@@ -2,8 +2,11 @@
 
     --color-primary: #B5121B;
     --color-primary-dark: #8F0E15;
+    --color-primary-light: #FBE8E9;
 
     --color-secondary: #0D6B4D;
+    --color-secondary-dark: #0A5A40;
+    --color-secondary-light: #E3F3EC;
 
     --color-black: #1F1F1F;
     --color-dark: #2C2C2C;
@@ -17,10 +20,15 @@
     --color-white: #FFFFFF;
 
     --color-success: #2E8B57;
-
     --color-warning: #F5A623;
-
     --color-error: #D7263D;
+    --color-error-light: #FBEAEC;
+
+    --text-body: var(--color-black);
+    --text-muted: var(--color-gray-700);
+    --input-bg: var(--color-white);
+    --input-border: var(--color-gray-300);
+    --input-text: var(--color-black);
 
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -29,7 +37,7 @@
 
     --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
     --shadow-md: 0 6px 18px rgba(0,0,0,.08);
-    --shadow-lg: 0 12px 30px rgba(0,0,0,.12);
+    --shadow-lg: 0 12px 30px rgba(0,0,0,.14);
 
-    --transition: .2s ease;
+    --transition: .2s ease
 }

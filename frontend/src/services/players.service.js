@@ -20,3 +20,8 @@ export const updatePlayer = async (id, player) => {
     );
     return response.data;
 };
+
+export const deletePlayer = async (id) => {
+    const response = await apiClient.delete(`/players/${id}`);
+    return response.data;
+};

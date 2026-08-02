@@ -9,6 +9,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "migrate": "node scripts/migrate.js",
+    "baseline": "node scripts/baseline-migrations.js",
     "reset-db": "node scripts/reset-db.js"
   },
   "keywords": [],

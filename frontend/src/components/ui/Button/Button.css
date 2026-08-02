@@ -27,6 +27,15 @@
     background:var(--color-gray-100);
 }
 
+.button-danger{
+    background:var(--color-error);
+    color:var(--color-white);
+}
+
+.button-danger:hover{
+    background:#B01E2E;
+}
+
 .button:disabled{
     opacity:.6;
     cursor:not-allowed;
