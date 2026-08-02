@@ -1,4 +1,4 @@
-import { MoreVertical } from "lucide-react";
+import ActionMenu from "../../components/ui/ActionMenu/ActionMenu";
 
 import Avatar from "../../components/ui/Avatar/Avatar";
 
@@ -16,9 +16,10 @@ function PlayerRow({ player, onEdit }) {
             <td>{player.playStyle}</td>
             <td>{player.dominantHand}</td>
             <td>
-                <button className="icon-button" onClick={() => onEdit(player)}>
-                    <MoreVertical size={18}/>
-                </button>
+                <ActionMenu 
+                    onEdit={() => onEdit(player)}
+                    onDelete={() => console.log("Delete", player.id)}
+                />
             </td>
         </tr>
     );
