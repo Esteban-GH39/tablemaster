@@ -1,26 +1,36 @@
 import apiClient from "../../api/apiClient.js";
 
 export const login = async (credentials) => {
-
     const response = await apiClient.post(
-
         "/auth/login",
-
         credentials
-
     );
-
     return response.data;
-
 };
 
 export const register = async ({ fullName, email, password }) => {
-
     const response = await apiClient.post(
         "/users",
         { fullName, email, password, role: "player" }
     );
-
     return response.data;
+};
 
+export const forgotPassword = async (email) => {
+    const { data } = await apiClient.post(
+        "/auth/forgot-password",
+        { email }
+    );
+    return data;
+};
+
+export const resetPassword = async ({ token, password }) => {
+    const { data } = await apiClient.post(
+        "/auth/reset-password",
+        {
+            token,
+            password
+        }
+    );
+    return data;
 };

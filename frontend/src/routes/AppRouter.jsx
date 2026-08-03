@@ -14,6 +14,8 @@ import DashboardLayout from "../layouts/DashboardLayout";
 
 import Login from "../features/auth/Login";
 import Register from "../features/auth/Register";
+import ForgotPassword from "../features/auth/ForgotPassword";
+import ResetPassword from "../features/auth/ResetPassword"
 
 function AppRouter() {
     return (
