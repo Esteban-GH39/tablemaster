@@ -9,7 +9,7 @@ const mapPlayer = (player) => ({
     dominantHand: player.dominant_hand,
     playStyle: player.play_style,
     gripType: player.grip_type,
-    userId: player.user_Id,
+    userId: player.user_id,
     createdAt: player.created_at,
     updatedAt: player.updated_at
 })

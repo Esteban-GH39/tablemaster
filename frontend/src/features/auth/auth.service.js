@@ -13,3 +13,14 @@ export const login = async (credentials) => {
     return response.data;
 
 };
+
+export const register = async ({ fullName, email, password }) => {
+
+    const response = await apiClient.post(
+        "/users",
+        { fullName, email, password, role: "player" }
+    );
+
+    return response.data;
+
+};

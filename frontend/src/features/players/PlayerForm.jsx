@@ -110,7 +110,7 @@ function PlayerForm({ player, onSuccess, onClose }) {
                     >
                         <option value="offensive">Offensive</option>
                         <option value="defensive">Defensive</option>
-                        <option value="control">Control</option>
+                        <option value="all-round">All-round</option>
                     </select>
                 </div>
                 <div className="form-group">

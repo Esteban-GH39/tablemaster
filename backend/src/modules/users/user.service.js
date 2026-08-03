@@ -1,6 +1,11 @@
 import { pool } from "../../config/database.js";
 import { hashPassword } from "../../utils/password.js";
 
+export const countUsers = async () => {
+    const { rows } = await pool.query(`SELECT COUNT(*)::int AS count FROM users;`);
+    return rows[0].count;
+};
+
 export const getUsers = async () => {
     const { rows } = await pool.query(`
         SELECT

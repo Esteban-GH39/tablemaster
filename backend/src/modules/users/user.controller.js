@@ -26,7 +26,19 @@ export const getUserByIdController = async (req, res, next) => {
 
 export const createUserController = async (req, res, next) => {
     try {
-        const user = await service.createUser(req.body);
+        const isAdminCreating = req.user?.role === "admin";
+        let role = "player";
+
+        if (isAdminCreating) {
+            role = req.body.role;
+        } else {
+            const existingUsers = await service.countUsers();
+            if (existingUsers === 0) {
+                role = "admin";
+            }
+        }
+
+        const user = await service.createUser({ ...req.body, role });
         res.status(201).json(user);
     } catch (error) {
         next(error);

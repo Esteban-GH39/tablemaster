@@ -44,7 +44,7 @@ function Sidebar() {
             </div>
 
             <nav>
-|               {
+                {
                     menuItems.map((item) => {
                         const Icon = item.icon;
                         return(

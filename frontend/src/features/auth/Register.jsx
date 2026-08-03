@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/AuthContext";
+import { register } from "./auth.service";
 import { login } from "./auth.service";
 
 import "./Login.css";
@@ -9,29 +10,31 @@ import "./Login.css";
 import Button from "../../components/ui/Button/Button";
 import Input from "../../components/ui/Input/Input";
 
-function Login() {
+function Register() {
 
+    const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
-
     const { login: saveToken } = useContext(AuthContext);
 
     const handleSubmit = async (event) => {
-
         event.preventDefault();
 
-        try {
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
 
+        try {
             setLoading(true);
 
-            const data = await login({
-                email,
-                password
-            });
+            await register({ fullName, email, password });
 
+            const data = await login({ email, password });
             saveToken(data.token);
 
             navigate("/dashboard");
@@ -40,7 +43,7 @@ function Login() {
 
             alert(
                 error.response?.data?.message ||
-                "Login failed"
+                "Registration failed"
             );
 
         } finally {
@@ -48,7 +51,6 @@ function Login() {
             setLoading(false);
 
         }
-
     };
 
     return (
@@ -62,7 +64,7 @@ function Login() {
                 </h1>
 
                 <p className="login-subtitle">
-                    Sistema de Gestión de Torneos
+                    Create your account
                 </p>
 
                 <form
@@ -71,21 +73,31 @@ function Login() {
                 >
 
                     <Input
+                        type="text"
+                        placeholder="Full name"
+                        value={fullName}
+                        onChange={(event) => setFullName(event.target.value)}
+                    />
+
+                    <Input
                         type="email"
-                        placeholder="Correo electrónico"
+                        placeholder="Email"
                         value={email}
-                        onChange={(event) => {
-                            setEmail(event.target.value);
-                        }}
+                        onChange={(event) => setEmail(event.target.value)}
                     />
 
                     <Input
                         type="password"
-                        placeholder="Contraseña"
+                        placeholder="Password (min. 8 characters)"
                         value={password}
-                        onChange={(event) => {
-                            setPassword(event.target.value);
-                        }}
+                        onChange={(event) => setPassword(event.target.value)}
+                    />
+
+                    <Input
+                        type="password"
+                        placeholder="Confirm password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
                     />
 
                     <Button
@@ -94,15 +106,19 @@ function Login() {
                     >
                         {
                             loading
-                                ? "Iniciando sesión..."
-                                : "Iniciar sesión"
+                                ? "Creating account..."
+                                : "Create account"
                         }
                     </Button>
 
                 </form>
 
+                <p className="auth-footer-note">
+                    First account on the system? It becomes admin automatically.
+                </p>
+
                 <p className="auth-switch-link">
-                    Don't have an account? <Link to="/register">Sign up</Link>
+                    Already have an account? <Link to="/">Sign in</Link>
                 </p>
 
             </div>
@@ -110,7 +126,6 @@ function Login() {
         </div>
 
     );
-
 }
 
-export default Login;
+export default Register;

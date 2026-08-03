@@ -6,18 +6,53 @@ import { createUserSchema, updateUserSchema, patchUserSchema, userIdSchema } fro
 
 import * as controller from "./user.controller.js";
 
+import { auth } from "../../middlewares/auth.js";
+import { requireRole } from "../../middlewares/requireRole.js";
+import { optionalAuth } from "../../middlewares/optionalAuth.js";
+
 const router = Router();
 
-router.get("/", controller.getUsersController);
+router.get("/", auth, requireRole("admin"), controller.getUsersController);
 
-router.get("/:id", validate(userIdSchema), controller.getUserByIdController);
+router.get(
+    "/:id",
+    auth,
+    requireRole("admin"),
+    validate(userIdSchema),
+    controller.getUserByIdController
+);
 
-router.post("/", validate(createUserSchema), controller.createUserController);
+router.post(
+    "/",
+    optionalAuth,
+    validate(createUserSchema),
+    controller.createUserController
+);
 
-router.put("/:id", validate(userIdSchema), validate(updateUserSchema), controller.updateUserController);
+router.put(
+    "/:id",
+    auth,
+    requireRole("admin"),
+    validate(userIdSchema),
+    validate(updateUserSchema),
+    controller.updateUserController
+);
 
-router.patch("/:id", validate(userIdSchema), validate(patchUserSchema), controller.patchUserController);
+router.patch(
+    "/:id",
+    auth,
+    requireRole("admin"),
+    validate(userIdSchema),
+    validate(patchUserSchema),
+    controller.patchUserController
+);
 
-router.delete("/:id", validate(userIdSchema), controller.deleteUserController);
+router.delete(
+    "/:id",
+    auth,
+    requireRole("admin"),
+    validate(userIdSchema),
+    controller.deleteUserController
+);
 
 export default router;

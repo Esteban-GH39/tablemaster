@@ -25,7 +25,7 @@ export const createPlayerController = async (req, res) => {
     try {
         let userId = null;
         if (req.user.role === "player") {
-            const existingPlayer = await getPlayerById(req.user.id);
+            const existingPlayer = await getPlayerByUserId(req.user.id);
             if (existingPlayer) {
                 return res.status(400).json({
                     message: "This user already has a player profile"

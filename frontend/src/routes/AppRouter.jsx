@@ -13,6 +13,7 @@ import NotFound from "../pages/NotFound";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 import Login from "../features/auth/Login";
+import Register from "../features/auth/Register";
 
 function AppRouter() {
     return (
@@ -21,6 +22,8 @@ function AppRouter() {
             <Routes>
 
                 <Route path="/" element={<Login />} />
+
+                <Route path="/register" element={<Register />} />
 
                 <Route element={<DashboardLayout />}>
 
