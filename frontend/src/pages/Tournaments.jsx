@@ -1,5 +1,7 @@
+import TournamentPage from "../features/tournaments/TournamentPage";
+
 function Tournaments() {
-    return <h1>Tournaments</h1>;
+    return <TournamentPage />;
 }
 
 export default Tournaments;

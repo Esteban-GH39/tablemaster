@@ -99,6 +99,12 @@ function Login() {
                         }
                     </Button>
 
+                    <div className="login-links">
+                        <Link to="/forgot-password">
+                            Forgot your password?
+                        </Link>
+                    </div>
+
                 </form>
 
                 <p className="auth-switch-link">
