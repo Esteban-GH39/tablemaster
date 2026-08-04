@@ -1,64 +1,44 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { getPlayers, deletePlayer } from "../../services/players.service";
 
 import PlayerTable from "./PlayerTable";
+import PlayerModal from "./PlayerModal";
 
 import SearchBar from "../../components/ui/SearchBar/SearchBar";
 import Button from "../../components/ui/Button/Button";
-import PlayerModal from "./PlayerModal";
+
+import useModal from "../../hooks/useModal";
+import useFetch from "../../hooks/useFetch";
 
 import "./Player.css";
 
 function PlayerPage() {
-    const [players, setPlayers] = useState([]);
-    const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [search, setSearch] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const modal = useModal();
 
-    const loadPlayers = async () => {
-            try {
-                const data = await getPlayers();
-                setPlayers(data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-    useEffect(() => {
-        loadPlayers();
-    }, []);
+    const {
+        data: players,
+        loading,
+        error,
+        reload
+    } = useFetch(getPlayers);
 
     const handlePlayerCreated = () => {
-        setIsModalOpen(false);
-        setSelectedPlayer(null);
-        loadPlayers();
-    }
+        modal.close();
+        reload();
+    };
 
-    const handleNewPlayer = () => {
-        setSelectedPlayer(null);
-        setIsModalOpen(true);
-    }
 
-    const handleEditPlayer = (player) => {
-        setSelectedPlayer(player);
-        setIsModalOpen(true);
-    }
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setSelectedPlayer(null);
-    }
 
     const handleDeletePlayer = async (player) => {
         const confirmed = window.confirm(
             `Delete ${player.fullName}? This cannot be undone.`
         );
         if (!confirmed) return;
-
         try {
             await deletePlayer(player.id);
-            loadPlayers();
+            reload();
         } catch (error) {
             console.error(error);
             alert(
@@ -66,11 +46,21 @@ function PlayerPage() {
                 "Error deleting player"
             );
         }
-    }
+    };
 
     const filteredPlayers = players.filter((player) =>
-        player.fullName.toLowerCase().includes(search.toLowerCase())
+        player.fullName
+            .toLowerCase()
+            .includes(search.toLowerCase())
     );
+
+    if (loading) {
+        return <p>Loading players...</p>;
+    }
+
+    if (error) {
+        return <p>Error loading players</p>;
+    }
 
     return (
         <div className="player-page">
@@ -81,33 +71,35 @@ function PlayerPage() {
                         Manage all registered players
                     </p>
                 </div>
-                <Button onClick={handleNewPlayer}>
+                <Button onClick={modal.open}>
                     + New Player
                 </Button>
-                {
-                    isModalOpen && (
-                        <PlayerModal
-                            player={selectedPlayer}
-                            onClose={handleCloseModal}
-                            onSuccess={handlePlayerCreated}
-                        />
-                    )
-                }
             </div>
             <SearchBar
                 placeholder="Search players..."
                 value={search}
-                onChange={(event) => {
-                    setSearch(event.target.value);
-                }}
+                onChange={(event) =>
+                    setSearch(event.target.value)
+                }
             />
             <PlayerTable
                 players={filteredPlayers}
-                onEdit={handleEditPlayer}
+                onEdit={modal.edit}
                 onDelete={handleDeletePlayer}
             />
+            {
+                modal.isOpen && (
+                    <PlayerModal
+                        player={modal.selectedItem}
+                        onClose={modal.close}
+                        onSuccess={handlePlayerCreated}
+                    />
+                )
+            }
         </div>
     );
+
 }
+
 
 export default PlayerPage;

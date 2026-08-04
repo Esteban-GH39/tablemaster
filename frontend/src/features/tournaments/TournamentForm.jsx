@@ -5,7 +5,7 @@ import { createTournament, updateTournament } from "../../services/tournaments.s
 import Button from "../../components/ui/Button/Button";
 import Input from "../../components/ui/Input/Input";
 
-function TournamentForm({tournament, onClose, onSuccess}) {
+function TournamentForm({tournament, onSuccess, onClose}) {
 
     const [formData, setFormData] = useState({
         name: tournament?.name ?? "",

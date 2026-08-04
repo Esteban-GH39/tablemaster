@@ -1,6 +1,10 @@
 import ActionMenu from "../../components/ui/ActionMenu/ActionMenu";
+import Badge from "../../components/ui/Badge/Badge";
 
-function TournamentRow({tournament, onEdit}) {
+import { getStatusVariant } from "../../utils/status";
+import { formatDate, formatStatus } from "../../utils/formatDate";
+
+function TournamentRow({ tournament, onEdit }) {
     return (
         <tr>
             <td>
@@ -10,17 +14,17 @@ function TournamentRow({tournament, onEdit}) {
                 {tournament.location}
             </td>
             <td>
-                <span
-                    className={`status-badge status-${tournament.status}`}
+                <Badge
+                    variant={getStatusVariant(tournament.status)}
                 >
-                    {tournament.status}
-                </span>
+                    {formatStatus(tournament.status)}
+                </Badge>
             </td>
             <td>
-                {tournament.startDate}
-                <br />
+                {formatDate(tournament.startDate)}
+                <br/>
                 <small>
-                    {tournament.endDate}
+                    {formatDate(tournament.endDate)}
                 </small>
             </td>
             <td>
