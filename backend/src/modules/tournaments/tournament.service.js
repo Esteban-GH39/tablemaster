@@ -1,12 +1,23 @@
 import { pool } from "../../config/database.js";
 
+// Postgres/node-pg devuelve las columnas DATE como objetos Date, que al
+// convertirse a JSON quedan como "2026-08-08T00:00:00.000Z" (con hora y
+// zona horaria). Tanto el <input type="date"> del navegador como la
+// validación z.iso.date() del backend exigen exactamente "YYYY-MM-DD",
+// así que se recorta explícitamente aquí.
+const toDateOnly = (value) => {
+    if (!value) return value;
+    const date = value instanceof Date ? value : new Date(value);
+    return date.toISOString().split("T")[0];
+};
+
 const mapTournament = (tournament) => ({
     id: tournament.id,
     name: tournament.name,
     description: tournament.description,
     location: tournament.location,
-    startDate: tournament.start_date,
-    endDate: tournament.end_date,
+    startDate: toDateOnly(tournament.start_date),
+    endDate: toDateOnly(tournament.end_date),
     status: tournament.status,
     maxPlayers: tournament.max_players,
     createdBy: tournament.created_by,
