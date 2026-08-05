@@ -1,6 +1,6 @@
 import TournamentRow from "./TournamentRow";
 
-function TournamentTable({tournaments, onEdit}) {
+function TournamentTable({tournaments, onEdit, onDelete}) {
     return (
         <div className="table-container">
             <table className="tournaments-table">
@@ -21,6 +21,7 @@ function TournamentTable({tournaments, onEdit}) {
                                 key={tournament.id}
                                 tournament={tournament}
                                 onEdit={onEdit}
+                                onDelete={onDelete}
                             />
                         ))
                     }

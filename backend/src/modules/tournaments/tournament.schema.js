@@ -21,8 +21,9 @@ export const createTournamentSchema = z.object({
         status: z.enum([
             "draft",
             "registration",
-            "ongoing",
-            "finished"
+            "in_progress",
+            "finished",
+            "cancelled"
         ]).optional(),
 
         maxPlayers: z.number()

@@ -1,5 +1,19 @@
 import { pool } from "../../config/database.js";
 
+const mapTournament = (tournament) => ({
+    id: tournament.id,
+    name: tournament.name,
+    description: tournament.description,
+    location: tournament.location,
+    startDate: tournament.start_date,
+    endDate: tournament.end_date,
+    status: tournament.status,
+    maxPlayers: tournament.max_players,
+    createdBy: tournament.created_by,
+    createdAt: tournament.created_at,
+    updatedAt: tournament.updated_at
+});
+
 export const getAllTournaments = async () => {
     const result = await pool.query(`
         SELECT *
@@ -7,7 +21,7 @@ export const getAllTournaments = async () => {
         ORDER BY id
     `);
 
-    return result.rows;
+    return result.rows.map(mapTournament);
 };
 
 export const getTournamentById = async (id) => {
@@ -19,7 +33,7 @@ export const getTournamentById = async (id) => {
         `,
         [id]
     );
-    return result.rows[0];
+    return result.rows[0] ? mapTournament(result.rows[0]) : undefined;
 };
 
 export const createTournament = async (tournamentData) => {
@@ -61,7 +75,7 @@ export const createTournament = async (tournamentData) => {
             createdBy
         ]
     );
-    return result.rows[0];
+    return mapTournament(result.rows[0]);
 };
 
 export const updateTournament = async (id, tournamentData) => {
@@ -101,7 +115,7 @@ export const updateTournament = async (id, tournamentData) => {
             id
         ]
     );
-    return result.rows[0];
+    return result.rows[0] ? mapTournament(result.rows[0]) : undefined;
 };
 
 export const patchTournament = async (id, tournamentData) => {
@@ -120,10 +134,10 @@ export const patchTournament = async (id, tournamentData) => {
         name: updatedTournament.name,
         description: updatedTournament.description,
         location: updatedTournament.location,
-        startDate: updatedTournament.start_date,
-        endDate: updatedTournament.end_date,
+        startDate: updatedTournament.startDate,
+        endDate: updatedTournament.endDate,
         status: updatedTournament.status,
-        maxPlayers: updatedTournament.max_players
+        maxPlayers: updatedTournament.maxPlayers
     });
 };
 
@@ -136,5 +150,5 @@ export const deleteTournament = async (id) => {
         `,
         [id]
     );
-    return result.rows[0];
+    return result.rows[0] ? mapTournament(result.rows[0]) : undefined;
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getTournaments } from "../../services/tournaments.service";
+import { getTournaments, deleteTournament } from "../../services/tournaments.service";
 
 import SearchBar from "../../components/ui/SearchBar/SearchBar";
 import Button from "../../components/ui/Button/Button";
@@ -41,6 +41,24 @@ function TournamentPage() {
         setIsModalOpen(true);
     };
 
+    const handleDeleteTournament = async (tournament) => {
+        const confirmed = window.confirm(
+            `Delete "${tournament.name}"? This cannot be undone.`
+        );
+        if (!confirmed) return;
+
+        try {
+            await deleteTournament(tournament.id);
+            loadTournaments();
+        } catch (error) {
+            console.error(error);
+            alert(
+                error.response?.data?.message ||
+                "Error deleting tournament"
+            );
+        }
+    };
+
     const filteredTournaments = tournaments.filter((tournament) =>
         tournament.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -71,6 +89,7 @@ function TournamentPage() {
             <TournamentTable
                 tournaments={filteredTournaments}
                 onEdit={handleEditTournament}
+                onDelete={handleDeleteTournament}
             />
             {
                 isModalOpen &&

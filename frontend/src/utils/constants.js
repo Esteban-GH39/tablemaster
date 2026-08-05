@@ -9,7 +9,7 @@ export const TOURNAMENT_STATUS = {
 export const PLAYER_STYLE = {
     OFFENSIVE: "offensive",
     DEFENSIVE: "defensive",
-    CONTROL: "control"
+    ALL_ROUND: "all-round"
 };
 
 export const DOMINANT_HAND = {

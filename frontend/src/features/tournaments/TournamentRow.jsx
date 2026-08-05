@@ -1,10 +1,10 @@
 import ActionMenu from "../../components/ui/ActionMenu/ActionMenu";
 import Badge from "../../components/ui/Badge/Badge";
 
-import { getStatusVariant } from "../../utils/status";
-import { formatDate, formatStatus } from "../../utils/formatDate";
+import { getStatusVariant, formatStatus } from "../../utils/status";
+import { formatDate } from "../../utils/formatDate";
 
-function TournamentRow({ tournament, onEdit }) {
+function TournamentRow({ tournament, onEdit, onDelete }) {
     return (
         <tr>
             <td>
@@ -33,12 +33,7 @@ function TournamentRow({ tournament, onEdit }) {
             <td>
                 <ActionMenu
                     onEdit={() => onEdit(tournament)}
-                    onDelete={() =>
-                        console.log(
-                            "Delete",
-                            tournament.id
-                        )
-                    }
+                    onDelete={() => onDelete(tournament)}
                 />
             </td>
         </tr>
