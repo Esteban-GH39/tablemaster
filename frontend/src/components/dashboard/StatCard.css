@@ -66,3 +66,8 @@
 .stat-link:hover{
     color:var(--color-primary-dark);
 }
+
+.stat-link:disabled{
+    color:var(--color-gray-500);
+    cursor:not-allowed;
+}

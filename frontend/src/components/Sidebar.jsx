@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-import { LayoutDashboard, Users, Shield, Trophy, BarChart3, ChartColumn } from "lucide-react";
+import { LayoutDashboard, Users, Shield, Trophy, BarChart3, ChartColumn, Target } from "lucide-react";
 
 const menuItems = [
     {
@@ -22,6 +22,11 @@ const menuItems = [
         name: "Tournaments",
         path: "/tournaments",
         icon: Trophy
+    },
+    {
+        name: "Matches",
+        path: "/matches",
+        icon: Target
     },
     {
         name: "Ranking",

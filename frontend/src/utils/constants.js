@@ -22,6 +22,12 @@ export const GRIP_TYPE = {
     PENHOLD: "penhold"
 };
 
+export const MATCH_STATUS = {
+    PENDING: "pending",
+    IN_PROGRESS: "in_progress",
+    FINISHED: "finished"
+};
+
 export const USER_ROLE = {
     ADMIN: "admin",
     ORGANIZER: "organizer",

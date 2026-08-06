@@ -54,24 +54,28 @@ function Dashboard() {
                     value={players.length}
                     description="Registered Players"
                     icon={<Users size={32} />}
+                    path="/players"
                 />
                 <StatCard
                     title="Teams"
                     value={teams.length}
                     description="Active Teams"
                     icon={<Shield size={32} />}
+                    path="/teams"
                 />
                 <StatCard
                     title="Tournaments"
                     value={tournaments.length}
                     description="Created Tournaments"
                     icon={<Trophy size={32} />}
+                    path="/tournaments"
                 />
                 <StatCard
                     title="Matches"
                     value={matches.length}
                     description="Played Matches"
                     icon={<Target size={32} />}
+                    path="/matches"
                 />
 
             </div>

@@ -1,10 +1,11 @@
 import { capitalize } from "./formatText";
 
-import { TOURNAMENT_STATUS } from "./constants";
+import { TOURNAMENT_STATUS, MATCH_STATUS } from "./constants";
 
 export const getStatusVariant = (status) => {
     switch(status){
         case TOURNAMENT_STATUS.DRAFT:
+        case MATCH_STATUS.PENDING:
             return "warning";
         case TOURNAMENT_STATUS.REGISTRATION:
             return "success";
