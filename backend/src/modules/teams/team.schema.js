@@ -4,7 +4,13 @@ export const createTeamSchema = z.object({
     body: z.object({
         name: z.string().min(2),
         type: z.enum([
-            "double",
+            "club",
+            "selection",
+            "school",
+            "other"
+        ]),
+        format: z.enum([
+            "doubles",
             "team"
         ])
     })

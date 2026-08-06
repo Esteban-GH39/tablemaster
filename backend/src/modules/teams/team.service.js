@@ -1,12 +1,26 @@
 import { pool } from "../../config/database.js";
 
+const MAX_PLAYERS_BY_FORMAT = {
+    doubles: 2,
+    team: 6
+};
+
+const mapTeam = (team) => ({
+    id: team.id,
+    name: team.name,
+    type: team.type,
+    format: team.format,
+    createdAt: team.created_at,
+    updatedAt: team.updated_at
+});
+
 export const getTeams = async () => {
     const result = await pool.query(`
         SELECT *
         FROM teams
         ORDER BY id
     `);
-    return result.rows;
+    return result.rows.map(mapTeam);
 };
 
 export const getTeamById = async (id) => {
@@ -15,37 +29,40 @@ export const getTeamById = async (id) => {
         FROM teams
         WHERE id = $1
     `,[id]);
-    return result.rows[0];
+    return result.rows[0] ? mapTeam(result.rows[0]) : undefined;
 };
 
-export const createTeam = async ({ name, type }) => {
+export const createTeam = async ({ name, type, format }) => {
     const result = await pool.query(`
         INSERT INTO teams
         (
             name,
-            type
+            type,
+            format
         )
         VALUES
         (
             $1,
-            $2
+            $2,
+            $3
         )
         RETURNING *
-    `,[name,type]);
-    return result.rows[0];
+    `,[name, type, format]);
+    return mapTeam(result.rows[0]);
 };
 
-export const updateTeam = async (id,{name,type})=>{
+export const updateTeam = async (id,{name,type,format})=>{
     const result = await pool.query(`
         UPDATE teams
         SET
             name=$1,
             type=$2,
+            format=$3,
             updated_at=CURRENT_TIMESTAMP
-        WHERE id=$3
+        WHERE id=$4
         RETURNING *
-    `,[name,type,id]);
-    return result.rows[0];
+    `,[name,type,format,id]);
+    return result.rows[0] ? mapTeam(result.rows[0]) : undefined;
 };
 
 export const deleteTeam = async(id)=>{
@@ -54,17 +71,25 @@ export const deleteTeam = async(id)=>{
         WHERE id=$1
         RETURNING *
     `,[id]);
-    return result.rows[0];
+    return result.rows[0] ? mapTeam(result.rows[0]) : undefined;
 };
 
 export const addPlayerToTeam = async(teamId,playerId)=>{
+    const team = await getTeamById(teamId);
+    if (!team) {
+        throw new Error("Team not found");
+    }
+
+    const maxPlayers = MAX_PLAYERS_BY_FORMAT[team.format] ?? MAX_PLAYERS_BY_FORMAT.team;
+
     const count = await pool.query(`
         SELECT COUNT(*) total
         FROM team_players
         WHERE team_id=$1
     `,[teamId]);
-    if(Number(count.rows[0].total)>=2){
-        throw new Error("Team already has two players");
+
+    if(Number(count.rows[0].total) >= maxPlayers){
+        throw new Error(`This ${team.format} team already has the maximum of ${maxPlayers} players`);
     }
     const position=Number(count.rows[0].total)+1;
     const result=await pool.query(`
@@ -97,7 +122,11 @@ export const getTeamPlayers=async(teamId)=>{
         WHERE tp.team_id=$1
         ORDER BY tp.position
     `,[teamId]);
-    return result.rows;
+    return result.rows.map((row) => ({
+        id: row.id,
+        fullName: row.full_name,
+        position: row.position
+    }));
 };
 
 export const removePlayerFromTeam=async(teamId,playerId)=>{

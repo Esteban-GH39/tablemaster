@@ -41,4 +41,16 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  const status =
+    err.status ||
+    (err.message?.toLowerCase().includes("not found") ? 404 : 400);
+
+  res.status(status).json({
+    message: err.message || "Unexpected server error"
+  });
+});
+
 export default app;

@@ -1,5 +1,7 @@
+import TeamPage from "../features/teams/TeamPage";
+
 function Teams() {
-    return <h1>Teams</h1>;
+    return <TeamPage />;
 }
 
 export default Teams;
