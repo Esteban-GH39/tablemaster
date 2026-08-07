@@ -24,3 +24,10 @@ export const deleteMatch = async (id) => {
     const response = await apiClient.delete(`/matches/${id}`);
     return response.data;
 };
+
+export const getHeadToHead = async (playerOneId, playerTwoId) => {
+    const response = await apiClient.get("/matches/head-to-head", {
+        params: { playerOneId, playerTwoId }
+    });
+    return response.data;
+};

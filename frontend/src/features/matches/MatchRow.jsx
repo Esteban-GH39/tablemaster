@@ -1,10 +1,19 @@
+import { Trophy } from "lucide-react";
+
 import ActionMenu from "../../components/ui/ActionMenu/ActionMenu";
 import Badge from "../../components/ui/Badge/Badge";
 
 import { getStatusVariant, formatStatus } from "../../utils/status";
 import { formatDate } from "../../utils/formatDate";
+import { MATCH_FORMAT_LABELS } from "../../utils/constants";
 
-function MatchRow({ match, playerName, tournamentName, onEdit, onDelete }) {
+function MatchRow({ match, playerName, tournamentName, onEdit, onDelete, onRegisterResult }) {
+    const canRegisterResult =
+        match.status !== "finished" &&
+        match.status !== "cancelled" &&
+        !!match.playerOneId &&
+        !!match.playerTwoId;
+
     return (
         <tr>
             <td>
@@ -27,6 +36,9 @@ function MatchRow({ match, playerName, tournamentName, onEdit, onDelete }) {
                 }
             </td>
             <td>
+                {MATCH_FORMAT_LABELS[match.setsToWin] ?? `First to ${match.setsToWin}`}
+            </td>
+            <td>
                 <Badge
                     variant={getStatusVariant(match.status)}
                 >
@@ -40,6 +52,15 @@ function MatchRow({ match, playerName, tournamentName, onEdit, onDelete }) {
                 <ActionMenu
                     onEdit={() => onEdit(match)}
                     onDelete={() => onDelete(match)}
+                    extraActions={
+                        canRegisterResult
+                            ? [{
+                                label: "Register Result",
+                                icon: <Trophy size={15} />,
+                                onClick: () => onRegisterResult(match)
+                            }]
+                            : []
+                    }
                 />
             </td>
         </tr>

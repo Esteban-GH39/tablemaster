@@ -1,5 +1,7 @@
+import RankingPage from "../features/ranking/RankingPage";
+
 function Ranking() {
-    return <h1>Ranking</h1>;
+    return <RankingPage />;
 }
 
 export default Ranking;

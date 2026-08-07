@@ -1,4 +1,26 @@
-import { getAllMatches, getMatchById, createMatch, updateMatch, patchMatch, deleteMatch } from "./match.service.js";
+import { getAllMatches, getMatchById, createMatch, updateMatch, patchMatch, deleteMatch, getHeadToHead } from "./match.service.js";
+
+export const getHeadToHeadController = async (req, res) => {
+    try {
+        const { playerOneId, playerTwoId } = req.query;
+        if (!playerOneId || !playerTwoId) {
+            return res.status(400).json({
+                message: "playerOneId and playerTwoId are required"
+            });
+        }
+        if (playerOneId === playerTwoId) {
+            return res.status(400).json({
+                message: "playerOneId and playerTwoId must be different players"
+            });
+        }
+        const data = await getHeadToHead(playerOneId, playerTwoId);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
 
 export const getMatchesController = async (req, res) => {
     try {

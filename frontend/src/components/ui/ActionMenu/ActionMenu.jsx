@@ -3,7 +3,7 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 
 import "./ActionMenu.css";
 
-function ActionMenu({ onEdit, onDelete }) {
+function ActionMenu({ onEdit, onDelete, extraActions = [] }) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -41,6 +41,23 @@ function ActionMenu({ onEdit, onDelete }) {
                         <Pencil size={15} />
                         Edit
                     </button>
+                    {
+                        extraActions.map((action) => (
+                            <button
+                                key={action.label}
+                                type="button"
+                                className="action-menu-item"
+                                disabled={action.disabled}
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    action.onClick?.();
+                                }}
+                            >
+                                {action.icon}
+                                {action.label}
+                            </button>
+                        ))
+                    }
                     <button
                         type="button"
                         className="action-menu-item action-menu-item-danger"

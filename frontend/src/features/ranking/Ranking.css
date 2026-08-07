@@ -1,0 +1,92 @@
+.ranking-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ranking-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.ranking-page-header h1{
+    margin: 0;
+    font-size: 30px;
+    color: var(--color-text);
+}
+
+.ranking-page-header p {
+    margin-top: 6px;
+    color: var(--color-text-light);
+}
+
+.ranking-page-header .form-group {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ranking-page-header .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 6px;
+}
+
+.ranking-page-header select {
+    padding: 10px 12px;
+    border: 1px solid #d7d7d7;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.ranking-error {
+    color: var(--color-error, #c0392b);
+    font-weight: 600;
+}
+
+.ranking-empty {
+    color: var(--color-gray-500);
+    text-align: center;
+    padding: 32px;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.ranking-table thead {
+    background: var(--color-primary);
+    color: white;
+}
+
+.ranking-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.ranking-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #ececec;
+}
+
+.ranking-table tbody tr:hover {
+    background: #f7faf9;
+}
+
+.ranking-position {
+    font-weight: 700;
+    text-align: center;
+    width: 40px;
+}
+

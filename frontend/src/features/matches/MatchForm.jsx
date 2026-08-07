@@ -5,6 +5,8 @@ import { createMatch, updateMatch } from "../../services/matches.service";
 import Button from "../../components/ui/Button/Button";
 import Input from "../../components/ui/Input/Input";
 
+import { MATCH_FORMAT_LABELS } from "../../utils/constants";
+
 const toDateTimeLocal = (isoString) => {
     if (!isoString) return "";
     const date = new Date(isoString);
@@ -16,12 +18,13 @@ const toDateTimeLocal = (isoString) => {
 function MatchForm({ match, players, tournaments, onSuccess, onClose }) {
 
     const [formData, setFormData] = useState({
-        tournamentId: match?.tournamentId ?? tournaments[0]?.id ?? "",
+        tournamentId: match?.tournamentId ?? "",
         playerOneId: match?.playerOneId ?? "",
         playerTwoId: match?.playerTwoId ?? "",
         winnerId: match?.winnerId ?? "",
         round: match?.round ?? "",
         matchOrder: match?.matchOrder ?? 1,
+        setsToWin: match?.setsToWin ?? 3,
         status: match?.status ?? "pending",
         playedAt: toDateTimeLocal(match?.playedAt)
     });
@@ -38,12 +41,13 @@ function MatchForm({ match, players, tournaments, onSuccess, onClose }) {
         event.preventDefault();
         try {
             const data = {
-                tournamentId: formData.tournamentId,
+                tournamentId: formData.tournamentId || null,
                 playerOneId: formData.playerOneId || null,
                 playerTwoId: formData.playerTwoId || null,
                 winnerId: formData.winnerId || null,
                 round: formData.round,
                 matchOrder: Number(formData.matchOrder),
+                setsToWin: Number(formData.setsToWin),
                 status: formData.status,
                 ...(formData.playedAt
                     ? { playedAt: new Date(formData.playedAt).toISOString() }
@@ -79,10 +83,9 @@ function MatchForm({ match, players, tournaments, onSuccess, onClose }) {
                         name="tournamentId"
                         value={formData.tournamentId}
                         onChange={handleChange}
-                        required
                     >
-                        <option value="" disabled>
-                            Select tournament
+                        <option value="">
+                            No tournament (friendly match)
                         </option>
                         {
                             tournaments.map((tournament) => (
@@ -159,6 +162,31 @@ function MatchForm({ match, players, tournaments, onSuccess, onClose }) {
                             })
                         }
                     </select>
+                </div>
+
+                <div className="form-group">
+                    <label>Match Format</label>
+                    <select
+                        name="setsToWin"
+                        value={formData.setsToWin}
+                        onChange={handleChange}
+                        disabled={match?.status === "finished"}
+                    >
+                        {
+                            Object.entries(MATCH_FORMAT_LABELS).map(([value, label]) => (
+                                <option key={value} value={value}>
+                                    {label}
+                                </option>
+                            ))
+                        }
+                    </select>
+                    {
+                        match?.status === "finished" && (
+                            <small className="form-hint">
+                                Format is locked once a result has been recorded.
+                            </small>
+                        )
+                    }
                 </div>
 
                 <Input

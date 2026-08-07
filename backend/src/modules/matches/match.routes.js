@@ -6,7 +6,8 @@ import {
     createMatchController,
     updateMatchController,
     patchMatchController,
-    deleteMatchController
+    deleteMatchController,
+    getHeadToHeadController
 } from "./match.controller.js";
 
 import { auth } from "../../middlewares/auth.js";
@@ -17,12 +18,19 @@ import {
     createMatchSchema,
     updateMatchSchema,
     patchMatchSchema,
-    matchIdSchema
+    matchIdSchema,
+    headToHeadSchema
 } from "./match.schema.js";
 
 const router = Router();
 
 router.get("/", getMatchesController);
+
+router.get(
+    "/head-to-head",
+    validate(headToHeadSchema),
+    getHeadToHeadController
+);
 
 router.get(
     "/:id",

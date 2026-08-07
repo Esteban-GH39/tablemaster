@@ -1,0 +1,112 @@
+.statistics-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.statistics-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.statistics-page-header h1 {
+    margin: 0;
+    font-size: 30px;
+    color: var(--color-text);
+}
+
+.statistics-page-header p {
+    margin-top: 6px;
+    color: var(--color-text-light);
+}
+
+.statistics-page-header .form-group {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+}
+
+.statistics-page-header .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 6px;
+}
+
+.statistics-page-header select {
+    padding: 10px 12px;
+    border: 1px solid #d7d7d7;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.statistics-error {
+    color: var(--color-error, #c0392b);
+    font-weight: 600;
+}
+
+.statistics-empty {
+    color: var(--color-gray-500);
+    text-align: center;
+    padding: 32px;
+}
+
+.stat-mini-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+    color: var(--color-primary);
+}
+
+.stat-mini-card > div {
+    display: flex;
+    flex-direction: column;
+    color: var(--color-text);
+}
+
+.stat-mini-value {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.stat-mini-label {
+    font-size: 12px;
+    color: var(--color-gray-500);
+}
+
+.statistics-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 16px 20px;
+}
+
+.statistics-progress-bar {
+    flex: 1;
+    height: 10px;
+    background: var(--color-gray-100, #eee);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.statistics-progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width .3s ease;
+}
+
+.statistics-subheading {
+    margin: 0;
+    font-size: 20px;
+    color: var(--color-text);
+}

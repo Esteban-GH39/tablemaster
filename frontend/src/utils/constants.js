@@ -28,6 +28,12 @@ export const MATCH_STATUS = {
     FINISHED: "finished"
 };
 
+export const MATCH_FORMAT_LABELS = {
+    2: "Best of 3",
+    3: "Best of 5",
+    4: "Best of 7"
+};
+
 export const USER_ROLE = {
     ADMIN: "admin",
     ORGANIZER: "organizer",

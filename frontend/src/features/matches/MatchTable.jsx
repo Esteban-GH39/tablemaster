@@ -1,6 +1,6 @@
 import MatchRow from "./MatchRow";
 
-function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete }) {
+function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete, onRegisterResult }) {
     return (
         <div className="table-container">
             <table className="matches-table">
@@ -11,6 +11,7 @@ function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete }) {
                         <th>Player One</th>
                         <th>Player Two</th>
                         <th>Winner</th>
+                        <th>Format</th>
                         <th>Status</th>
                         <th>Played At</th>
                         <th></th>
@@ -21,7 +22,7 @@ function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete }) {
                         matches.length === 0
                             ? (
                                 <tr>
-                                    <td colSpan={8} className="match-empty">
+                                    <td colSpan={9} className="match-empty">
                                         No matches found
                                     </td>
                                 </tr>
@@ -34,6 +35,7 @@ function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete }) {
                                     tournamentName={tournamentName}
                                     onEdit={onEdit}
                                     onDelete={onDelete}
+                                    onRegisterResult={onRegisterResult}
                                 />
                             ))
                     }

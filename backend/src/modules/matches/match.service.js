@@ -11,6 +11,7 @@ const mapMatch = (match) => ({
     winnerId: match.winner_id,
     round: match.round,
     matchOrder: match.match_order,
+    setsToWin: match.sets_to_win,
     status: match.status,
     playedAt: match.played_at,
     createdAt: match.created_at,
@@ -37,6 +38,52 @@ export const getMatchById = async (id) => {
         : null;
 };
 
+export const getHeadToHead = async (playerOneId, playerTwoId) => {
+    const result = await pool.query(`
+        SELECT
+            m.*,
+            t.name AS tournament_name,
+            COALESCE(
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'setNumber', s.set_number,
+                            'playerOneScore', s.player_one_score,
+                            'playerTwoScore', s.player_two_score
+                        )
+                        ORDER BY s.set_number
+                    )
+                    FROM match_sets s
+                    WHERE s.match_id = m.id
+                ),
+                '[]'
+            ) AS sets
+        FROM matches m
+        LEFT JOIN tournaments t
+            ON t.id = m.tournament_id
+        WHERE
+            (m.player_one_id = $1 AND m.player_two_id = $2)
+            OR (m.player_one_id = $2 AND m.player_two_id = $1)
+        ORDER BY
+            COALESCE(m.played_at, m.created_at) DESC
+    `, [playerOneId, playerTwoId]);
+
+    const matches = result.rows.map((row) => ({
+        ...mapMatch(row),
+        tournamentName: row.tournament_name,
+        sets: row.sets
+    }));
+
+    const finished = matches.filter((match) => match.status === "finished" && match.winnerId);
+    const summary = {
+        totalMatches: matches.length,
+        playerOneWins: finished.filter((match) => match.winnerId === playerOneId).length,
+        playerTwoWins: finished.filter((match) => match.winnerId === playerTwoId).length
+    };
+
+    return { matches, summary };
+};
+
 export const createMatch = async (matchData) => {
     const {
         tournamentId,
@@ -45,11 +92,14 @@ export const createMatch = async (matchData) => {
         winnerId,
         round,
         matchOrder,
+        setsToWin,
         status,
         playedAt
     } = matchData;
-    const tournament = await getTournamentById(tournamentId);
-    if (!tournament) {
+    const tournament = tournamentId
+        ? await getTournamentById(tournamentId)
+        : null;
+    if (tournamentId && !tournament) {
         throw new Error("Tournament not found");
     }
     if (playerOneId) {
@@ -79,22 +129,24 @@ export const createMatch = async (matchData) => {
             winner_id,
             round,
             match_order,
+            sets_to_win,
             status,
             played_at
         )
         VALUES
         (
-            $1,$2,$3,$4,$5,$6,$7,$8
+            $1,$2,$3,$4,$5,$6,$7,$8,$9
         )
         RETURNING *
     `,
     [
-        tournamentId,
-        playerOneId,
-        playerTwoId,
-        winnerId,
+        tournamentId ?? null,
+        playerOneId ?? null,
+        playerTwoId ?? null,
+        winnerId ?? null,
         round,
         matchOrder,
+        setsToWin ?? 3,
         status ?? "pending",
         playedAt ?? null
     ]);
@@ -109,6 +161,7 @@ export const updateMatch = async (id, matchData) => {
         winnerId,
         round,
         matchOrder,
+        setsToWin,
         status,
         playedAt
     } = matchData;
@@ -121,21 +174,23 @@ export const updateMatch = async (id, matchData) => {
             winner_id = $4,
             round = $5,
             match_order = $6,
-            status = $7,
-            played_at = $8,
+            sets_to_win = $7,
+            status = $8,
+            played_at = $9,
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $9
+        WHERE id = $10
         RETURNING *
     `,
     [
-        tournamentId,
-        playerOneId,
-        playerTwoId,
-        winnerId,
+        tournamentId ?? null,
+        playerOneId ?? null,
+        playerTwoId ?? null,
+        winnerId ?? null,
         round,
         matchOrder,
+        setsToWin ?? 3,
         status,
-        playedAt,
+        playedAt ?? null,
         id
     ]);
     return result.rows.length

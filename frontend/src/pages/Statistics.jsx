@@ -1,5 +1,7 @@
+import StatisticsPage from "../features/statistics/StatisticsPage";
+
 function Statistics() {
-    return <h1>Statistics</h1>;
+    return <StatisticsPage />;
 }
 
 export default Statistics;

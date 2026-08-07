@@ -18,7 +18,7 @@ const validateSet = (playerOneScore, playerTwoScore) => {
     return winner - loser === 2;
 };
 
-const validateMatch = (sets) => {
+const validateMatch = (sets, setsToWin) => {
     let playerOneSets = 0;
     let playerTwoSets = 0;
     for (const set of sets) {
@@ -37,11 +37,11 @@ const validateMatch = (sets) => {
         }
     }
     if (
-        playerOneSets !== 3 &&
-        playerTwoSets !== 3
+        playerOneSets !== setsToWin &&
+        playerTwoSets !== setsToWin
     ) {
         throw new Error(
-            "A match finishes when one player wins three sets."
+            `A match finishes when one player wins ${setsToWin} sets.`
         );
     }
 };
@@ -67,13 +67,26 @@ export const registerMatchResult = async (matchId, sets) => {
         if (match.status === "cancelled") {
             throw new Error("Cancelled match");
         }
-        if (match.status !== "scheduled") {
+        if (
+            match.status !== "pending" &&
+            match.status !== "in_progress"
+        ) {
             throw new Error("Match is not ready to be played");
+        }
+        if (!match.player_one_id || !match.player_two_id) {
+            throw new Error("Match needs both players assigned before a result can be recorded");
         }
         if (!sets.length) {
             throw new Error("At least one set is required");
         }
-        validateMatch(sets);
+        const setsToWin = match.sets_to_win;
+        const maxSets = setsToWin * 2 - 1;
+        if (sets.length < setsToWin || sets.length > maxSets) {
+            throw new Error(
+                `This match is best of ${maxSets} (first to ${setsToWin} sets) — expected between ${setsToWin} and ${maxSets} sets.`
+            );
+        }
+        validateMatch(sets, setsToWin);
         let playerOneSets = 0;
         let playerTwoSets = 0;
         let playerOnePoints = 0;
@@ -134,71 +147,62 @@ export const registerMatchResult = async (matchId, sets) => {
                 matchId
             ]
         );
-        const competitionResult = await pool.query(
-            `
-            SELECT competition_id
-            FROM stages
-            WHERE id = $1;
-            `,
-            [match.stage_id]
-        );
-        const competitionId =
-            competitionResult.rows[0].competition_id;
-        const tournamentResult = await pool.query(
-            `
-            SELECT tournament_id
-            FROM competitions
-            WHERE id = $1;
-            `,
-            [competitionId]
-        );
-        const tournamentId =
-            tournamentResult.rows[0].tournament_id;
-        await updateStatistics(
-            tournamentId,
-            match.player_one_id,
-            winnerId === match.player_one_id,
-            playerOneSets,
-            playerTwoSets,
-            playerOnePoints,
-            playerTwoPoints
-        );
-        await updateStatistics(
-            tournamentId,
-            match.player_two_id,
-            winnerId === match.player_two_id,
-            playerTwoSets,
-            playerOneSets,
-            playerTwoPoints,
-            playerOnePoints
-        );
-        const stageResult = await pool.query(
-            `
-            SELECT stage_type
-            FROM stages
-            WHERE id = $1;
-            `,
-            [match.stage_id]
-        );
-        const stageType =
-            stageResult.rows[0].stage_type;
-        if (stageType === "groups") {
-            await recalculateGroup(match.group_id);
-            const finished =
-                await areGroupsFinished(
-                    competitionId
-                );
-            if (finished) {
-                await generateKnockout(
-                    competitionId
-                );
-            }
-        } else {
-            await advanceWinner(match.id);
-            if (match.round === "Final") {
-                await finishTournament(
-                    competitionId
-                );
+        // Standalone / friendly matches (no tournament) don't feed statistics
+        // or bracket progression - those are tournament-only concepts.
+        if (match.tournament_id) {
+            await updateStatistics(
+                match.tournament_id,
+                match.player_one_id,
+                winnerId === match.player_one_id,
+                playerOneSets,
+                playerTwoSets,
+                playerOnePoints,
+                playerTwoPoints
+            );
+            await updateStatistics(
+                match.tournament_id,
+                match.player_two_id,
+                winnerId === match.player_two_id,
+                playerTwoSets,
+                playerOneSets,
+                playerTwoPoints,
+                playerOnePoints
+            );
+        }
+
+        // Bracket/group advancement only applies to matches generated as part
+        // of a stage (round robin group or knockout bracket).
+        if (match.stage_id) {
+            const stageResult = await pool.query(
+                `
+                SELECT stage_type, competition_id
+                FROM stages
+                WHERE id = $1;
+                `,
+                [match.stage_id]
+            );
+            const stageType =
+                stageResult.rows[0].stage_type;
+            const competitionId =
+                stageResult.rows[0].competition_id;
+            if (stageType === "groups") {
+                await recalculateGroup(match.group_id);
+                const finished =
+                    await areGroupsFinished(
+                        competitionId
+                    );
+                if (finished) {
+                    await generateKnockout(
+                        competitionId
+                    );
+                }
+            } else {
+                await advanceWinner(match.id);
+                if (match.round === "Final") {
+                    await finishTournament(
+                        competitionId
+                    );
+                }
             }
         }
         await pool.query("COMMIT");

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { getMatches, deleteMatch } from "../../services/matches.service";
 import { getPlayers } from "../../services/players.service";
@@ -9,6 +10,7 @@ import Button from "../../components/ui/Button/Button";
 
 import MatchTable from "./MatchTable";
 import MatchModal from "./MatchModal";
+import MatchResultModal from "../matchResults/MatchResultModal";
 
 import "./Match.css";
 
@@ -20,6 +22,7 @@ function MatchPage() {
     const [selectedMatch, setSelectedMatch] = useState(null);
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [resultMatch, setResultMatch] = useState(null);
 
     const loadData = async () => {
         try {
@@ -51,6 +54,15 @@ function MatchPage() {
         setIsModalOpen(true);
     };
 
+    const handleRegisterResult = (match) => {
+        setResultMatch(match);
+    };
+
+    const handleResultSaved = () => {
+        setResultMatch(null);
+        loadData();
+    };
+
     const handleDeleteMatch = async (match) => {
         const confirmed = window.confirm(
             `Delete this match? This cannot be undone.`
@@ -75,6 +87,7 @@ function MatchPage() {
     };
 
     const tournamentName = (id) => {
+        if (!id) return "Friendly match";
         const tournament = tournaments.find((tournament) => tournament.id === id);
         return tournament ? tournament.name : "Unknown tournament";
     };
@@ -98,15 +111,19 @@ function MatchPage() {
                         Manage all matches
                     </p>
                 </div>
-                <Button
-                    onClick={() => {
-                        setSelectedMatch(null);
-                        setIsModalOpen(true);
-                    }}
-                    disabled={tournaments.length === 0}
-                >
-                    + New Match
-                </Button>
+                <div className="match-page-actions">
+                    <Link to="/matches/head-to-head" className="btn-secondary-link">
+                        Head to Head
+                    </Link>
+                    <Button
+                        onClick={() => {
+                            setSelectedMatch(null);
+                            setIsModalOpen(true);
+                        }}
+                    >
+                        + New Match
+                    </Button>
+                </div>
             </div>
             <SearchBar
                 placeholder="Search matches..."
@@ -119,6 +136,7 @@ function MatchPage() {
                 tournamentName={tournamentName}
                 onEdit={handleEditMatch}
                 onDelete={handleDeleteMatch}
+                onRegisterResult={handleRegisterResult}
             />
             {
                 isModalOpen &&
@@ -132,6 +150,18 @@ function MatchPage() {
                             setSelectedMatch(null);
                         }}
                         onSuccess={handleMatchSaved}
+                    />
+                )
+            }
+            {
+                resultMatch &&
+                (
+                    <MatchResultModal
+                        match={resultMatch}
+                        playerOneName={playerName(resultMatch.playerOneId)}
+                        playerTwoName={playerName(resultMatch.playerTwoId)}
+                        onClose={() => setResultMatch(null)}
+                        onSuccess={handleResultSaved}
                     />
                 )
             }

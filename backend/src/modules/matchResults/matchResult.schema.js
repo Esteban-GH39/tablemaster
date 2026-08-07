@@ -10,6 +10,6 @@ export const registerMatchResultSchema = z.object({
         id: z.string().uuid()
     }),
     body: z.object({
-        sets: z.array(setSchema).min(3).max(5)
+        sets: z.array(setSchema).min(2).max(7)
     })
 });

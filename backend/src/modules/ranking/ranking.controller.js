@@ -11,7 +11,7 @@ export const getGlobalRankingController = async (req, res, next) => {
 
 export const getTournamentRankingController = async (req, res, next) => {
     try {
-        const ranking = await getTournamentRanking(Number(req.params.id));
+        const ranking = await getTournamentRanking(req.params.id);
         res.json(ranking);
     } catch (error) {
         next(error);

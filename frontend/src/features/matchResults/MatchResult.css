@@ -1,0 +1,110 @@
+.match-result-form{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.match-result-players{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    font-weight:600;
+    font-size:16px;
+}
+
+.match-result-tally{
+    font-size:22px;
+    font-weight:800;
+    color:var(--color-primary);
+}
+
+.match-result-sets{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.set-input-row{
+    background:var(--color-gray-100, #f5f5f5);
+    border-radius:10px;
+    padding:12px 14px;
+}
+
+.set-input-label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--color-gray-500);
+    margin-bottom:8px;
+}
+
+.set-input-scores{
+    display:flex;
+    align-items:flex-end;
+    gap:12px;
+}
+
+.set-input-score{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+}
+
+.set-input-score label{
+    font-size:12px;
+    color:var(--color-text-light);
+    margin-bottom:4px;
+}
+
+.set-input-score input{
+    padding:10px;
+    border:1px solid #d7d7d7;
+    border-radius:8px;
+    font-size:15px;
+    width:100%;
+}
+
+.set-input-remove{
+    border:none;
+    background:transparent;
+    color:var(--color-gray-500);
+    cursor:pointer;
+    padding:8px;
+    border-radius:8px;
+}
+
+.set-input-remove:hover{
+    background:var(--color-error-light, #fdecea);
+    color:var(--color-error);
+}
+
+.set-input-error{
+    color:var(--color-error, #c0392b);
+    font-size:13px;
+    margin-top:8px;
+    margin-bottom:0;
+}
+
+.match-result-add-set{
+    align-self:flex-start;
+    border:1px dashed var(--color-gray-300, #ccc);
+    background:transparent;
+    color:var(--color-primary);
+    font-weight:600;
+    padding:10px 16px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.match-result-add-set:disabled{
+    color:var(--color-gray-500);
+    border-color:var(--color-gray-300, #ccc);
+    cursor:not-allowed;
+}
+
+.match-result-submit-error{
+    color:var(--color-error, #c0392b);
+    font-weight:600;
+    text-align:center;
+}
