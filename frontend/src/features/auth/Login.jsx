@@ -17,7 +17,7 @@ function Login() {
 
     const navigate = useNavigate();
 
-    const { login: saveToken } = useContext(AuthContext);
+    const { login: saveAuth } = useContext(AuthContext);
 
     const handleSubmit = async (event) => {
 
@@ -32,7 +32,7 @@ function Login() {
                 password
             });
 
-            saveToken(data.token);
+            saveAuth(data.token, data.user);
 
             navigate("/dashboard");
 

@@ -4,6 +4,7 @@ import ProtectedRoute from "./ProtectedRoute";
 
 import Dashboard from "../pages/Dashboard";
 import Players from "../pages/Players";
+import Users from "../pages/Users";
 import Tournaments from "../pages/Tournaments";
 import Ranking from "../pages/Ranking";
 import Teams from "../pages/Teams";
@@ -99,6 +100,15 @@ function AppRouter() {
                         element={<ProtectedRoute>
                                 <Statistics />
                             </ProtectedRoute>}
+                    />
+
+                    <Route 
+                        path="/users"
+                        element={
+                            <ProtectedRoute>
+                                <Users />
+                            </ProtectedRoute>
+                        }
                     />
 
                 </Route>

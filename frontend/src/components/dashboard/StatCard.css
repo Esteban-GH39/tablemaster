@@ -27,8 +27,8 @@
     width:56px;
     height:56px;
     border-radius:14px;
-    background:rgba(181,18,27,.08);
-    color:var(--color-primary);
+    background:var(--color-secondary-light);
+    color:var(--color-secondary);
 }
 
 .stat-card h3{
@@ -41,7 +41,7 @@
 .stat-value{
     margin:0;
     font-size:2.4rem;
-    color:var(--color-secondary);
+    color:var(--color-black);
     font-weight:700;
 }
 
@@ -55,7 +55,7 @@
     margin-top:auto;
     border:none;
     background:none;
-    color:var(--color-primary);
+    color:var(--color-secondary);
     font-weight:600;
     cursor:pointer;
     padding:0;
@@ -64,7 +64,7 @@
 }
 
 .stat-link:hover{
-    color:var(--color-primary-dark);
+    color:var(--color-secondary-dark);
 }
 
 .stat-link:disabled{

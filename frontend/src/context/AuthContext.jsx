@@ -8,23 +8,44 @@ function AuthProvider({ children }) {
         localStorage.getItem("token")
     );
 
-    const login = (newToken) => {
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem("user");
+
+        return savedUser
+            ? JSON.parse(savedUser)
+            : null;
+    });
+
+    const login = (newToken, newUser) => {
+
         localStorage.setItem(
             "token",
             newToken
         );
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify(newUser)
+        );
+
         setToken(newToken);
+        setUser(newUser);
     };
 
     const logout = () => {
+
         localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
         setToken(null);
+        setUser(null);
     };
 
     return (
         <AuthContext.Provider
             value={{
                 token,
+                user,
                 login,
                 logout,
                 isAuthenticated: !!token
@@ -33,7 +54,6 @@ function AuthProvider({ children }) {
             {children}
         </AuthContext.Provider>
     );
-
 }
 
 export default AuthProvider;

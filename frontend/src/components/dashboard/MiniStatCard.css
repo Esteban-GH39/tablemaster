@@ -1,0 +1,56 @@
+.mini-stat-card{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--color-white);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-sm);
+    padding:16px 18px;
+}
+
+.mini-stat-icon{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    flex-shrink:0;
+}
+
+.mini-stat-text{
+    display:flex;
+    flex-direction:column;
+}
+
+.mini-stat-value{
+    font-size:1.3rem;
+    font-weight:700;
+    color:var(--color-black);
+    line-height:1.1;
+}
+
+.mini-stat-label{
+    font-size:.8rem;
+    color:var(--color-gray-500);
+}
+
+.mini-stat-secondary .mini-stat-icon{
+    background:var(--color-secondary-light);
+    color:var(--color-secondary);
+}
+
+.mini-stat-warning .mini-stat-icon{
+    background:#FEF3E2;
+    color:var(--color-warning);
+}
+
+.mini-stat-danger .mini-stat-icon{
+    background:var(--color-error-light);
+    color:var(--color-error);
+}
+
+.mini-stat-neutral .mini-stat-icon{
+    background:var(--color-gray-100);
+    color:var(--color-gray-700);
+}
