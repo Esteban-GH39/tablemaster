@@ -1,12 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import { Check, ChevronDown } from "lucide-react";
 
 import {
     createUser,
     updateUser
-} from "../../services/user.service";
+} from "../../services/users.service";
 
 import Input from "../../components/ui/Input/Input";
 import Button from "../../components/ui/Button/Button";
+
+import "./UserForm.css";
+
+const ROLE_OPTIONS = [
+    { value: "player", label: "Player" },
+    { value: "organizer", label: "Organizer" },
+    { value: "referee", label: "Referee" },
+    { value: "admin", label: "Admin" }
+];
 
 function UserForm({
     user = null,
@@ -24,6 +35,22 @@ function UserForm({
     });
 
     const [loading, setLoading] = useState(false);
+
+    const [roleOpen, setRoleOpen] = useState(false);
+    const roleRef = useRef(null);
+
+    useEffect(() => {
+
+        const handleClickOutside = (event) => {
+            if (roleRef.current && !roleRef.current.contains(event.target)) {
+                setRoleOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    }, []);
 
     useEffect(() => {
 
@@ -56,6 +83,14 @@ function UserForm({
 
     };
 
+    const handleRoleSelect = (value) => {
+        setFormData((previous) => ({
+            ...previous,
+            role: value
+        }));
+        setRoleOpen(false);
+    };
+
     const handleSubmit = async (event) => {
 
         event.preventDefault();
@@ -66,9 +101,11 @@ function UserForm({
 
             if (isEditing) {
 
+                const { password, ...rest } = formData;
+
                 await updateUser(
                     user.id,
-                    formData
+                    password ? formData : rest
                 );
 
             } else {
@@ -105,7 +142,8 @@ function UserForm({
             <Input
                 type="text"
                 name="fullName"
-                placeholder="Full name"
+                label="Full name"
+                placeholder="e.g. Esteban Giron Herrera"
                 value={formData.fullName}
                 onChange={handleChange}
                 required
@@ -114,7 +152,8 @@ function UserForm({
             <Input
                 type="email"
                 name="email"
-                placeholder="Email"
+                label="Email"
+                placeholder="e.g. name@email.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -123,43 +162,69 @@ function UserForm({
             <Input
                 type="password"
                 name="password"
-                placeholder="Password"
+                label="Password"
+                placeholder={
+                    isEditing
+                        ? "Leave blank to keep current"
+                        : "Minimum 8 characters"
+                }
                 value={formData.password}
                 onChange={handleChange}
-                required
+                required={!isEditing}
                 minLength={8}
             />
 
-            <div className="user-form-field">
+            <div className="user-form-field" ref={roleRef}>
 
-                <label htmlFor="role">
+                <label className="user-form-label">
                     Role
                 </label>
 
-                <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    required
-                >
-                    <option value="player">
-                        Player
-                    </option>
+                <div className="user-form-select-wrap">
 
-                    <option value="organizer">
-                        Organizer
-                    </option>
+                    <button
+                        type="button"
+                        className={`user-form-select ${roleOpen ? "is-open" : ""}`}
+                        onClick={() => setRoleOpen((open) => !open)}
+                    >
+                        <span>
+                            {
+                                ROLE_OPTIONS.find(
+                                    (option) => option.value === formData.role
+                                )?.label
+                            }
+                        </span>
+                        <ChevronDown size={18} className="user-form-select-chevron" />
+                    </button>
 
-                    <option value="referee">
-                        Referee
-                    </option>
+                    {
+                        roleOpen && (
+                            <ul className="user-form-select-list" role="listbox">
+                                {
+                                    ROLE_OPTIONS.map((option) => (
+                                        <li
+                                            key={option.value}
+                                            role="option"
+                                            aria-selected={option.value === formData.role}
+                                            className={`user-form-select-option ${
+                                                option.value === formData.role ? "is-selected" : ""
+                                            }`}
+                                            onClick={() => handleRoleSelect(option.value)}
+                                        >
+                                            {option.label}
+                                            {
+                                                option.value === formData.role && (
+                                                    <Check size={16} />
+                                                )
+                                            }
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        )
+                    }
 
-                    <option value="admin">
-                        Admin
-                    </option>
-
-                </select>
+                </div>
 
             </div>
 
@@ -167,6 +232,7 @@ function UserForm({
 
                 <Button
                     type="button"
+                    variant="secondary"
                     onClick={onClose}
                     disabled={loading}
                 >
@@ -175,6 +241,7 @@ function UserForm({
 
                 <Button
                     type="submit"
+                    variant="primary"
                     disabled={loading}
                 >
                     {

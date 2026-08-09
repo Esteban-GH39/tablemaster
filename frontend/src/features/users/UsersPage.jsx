@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import { AuthContext } from "../../context/AuthContext";
 
@@ -10,6 +10,8 @@ import {
 
 import useFetch from "../../hooks/useFetch";
 import Badge from "../../components/ui/Badge/Badge";
+import Button from "../../components/ui/Button/Button";
+import UserModal from "./UserModal";
 
 import "./Users.css";
 
@@ -25,6 +27,9 @@ function UsersPage() {
         error,
         reload
     } = useFetch(getUsers);
+
+    const [modalUser, setModalUser] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     if (role !== "admin") {
         return (
@@ -73,6 +78,26 @@ function UsersPage() {
         }
     };
 
+    const openCreateModal = () => {
+        setModalUser(null);
+        setShowModal(true);
+    };
+
+    const openEditModal = (user) => {
+        setModalUser(user);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setModalUser(null);
+    };
+
+    const handleModalSuccess = () => {
+        closeModal();
+        reload();
+    };
+
     if (loading) return <p>Loading users...</p>;
     if (error) return <p>Error loading users</p>;
 
@@ -83,7 +108,20 @@ function UsersPage() {
                     <h1>Users</h1>
                     <p>Manage accounts, roles and access</p>
                 </div>
+                <Button onClick={openCreateModal}>
+                    + New User
+                </Button>
             </div>
+
+            {
+                showModal && (
+                    <UserModal
+                        user={modalUser}
+                        onClose={closeModal}
+                        onSuccess={handleModalSuccess}
+                    />
+                )
+            }
 
             <div className="table-container">
                 <table className="users-table">
@@ -136,14 +174,23 @@ function UsersPage() {
                                         {new Date(user.createdAt).toLocaleDateString()}
                                     </td>
                                     <td>
-                                        <button
-                                            type="button"
-                                            className="users-toggle-btn"
-                                            disabled={user.id === userId}
-                                            onClick={() => handleToggleActive(user)}
-                                        >
-                                            {user.isActive ? "Deactivate" : "Reactivate"}
-                                        </button>
+                                        <div className="users-row-actions">
+                                            <button
+                                                type="button"
+                                                className="users-edit-btn"
+                                                onClick={() => openEditModal(user)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="users-toggle-btn"
+                                                disabled={user.id === userId}
+                                                onClick={() => handleToggleActive(user)}
+                                            >
+                                                {user.isActive ? "Deactivate" : "Reactivate"}
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))

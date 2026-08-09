@@ -90,7 +90,7 @@ function Dashboard() {
     return (
         <div className="dashboard-page">
             <h1>Dashboard</h1>
-            <p>Bienvenido a TableMaster</p>
+            <p>Welcome to TableMaster</p>
 
             <div className="dashboard-grid">
                 <StatCard

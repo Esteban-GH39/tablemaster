@@ -4,9 +4,38 @@
     gap:24px;
 }
 
+.users-page-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+}
+
 .users-page-header h1{
     margin:0;
     font-size:2rem;
+}
+
+.users-row-actions{
+    display:flex;
+    gap:8px;
+}
+
+.users-edit-btn{
+    padding:7px 12px;
+    border:1px solid var(--color-gray-300);
+    border-radius:var(--radius-sm);
+    background:var(--color-white);
+    color:var(--text-muted);
+    font-size:.82rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:var(--transition);
+}
+
+.users-edit-btn:hover{
+    border-color:var(--color-primary);
+    color:var(--color-primary);
 }
 
 .users-page-header p{
