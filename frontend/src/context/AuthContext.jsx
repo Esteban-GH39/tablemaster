@@ -1,6 +1,17 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+
+import apiClient from "../api/apiClient";
 
 export const AuthContext = createContext();
+
+const decodeToken = (token) => {
+    try {
+        const payload = token.split(".")[1];
+        return JSON.parse(atob(payload));
+    } catch {
+        return null;
+    }
+};
 
 function AuthProvider({ children }) {
 
@@ -8,36 +19,40 @@ function AuthProvider({ children }) {
         localStorage.getItem("token")
     );
 
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem("user");
+    const [claims, setClaims] = useState(
+        token ? decodeToken(token) : null
+    );
 
-        return savedUser
-            ? JSON.parse(savedUser)
-            : null;
-    });
+    const [user, setUser] = useState(null);
 
-    const login = (newToken, newUser) => {
+    const loadProfile = async () => {
+        try {
+            const { data } = await apiClient.get("/auth/me");
+            setUser(data.user);
+        } catch {
+            setUser(null);
+        }
+    };
 
+    useEffect(() => {
+        if (token) {
+            loadProfile();
+        }
+    }, [token]);
+
+    const login = (newToken) => {
         localStorage.setItem(
             "token",
             newToken
         );
-
-        localStorage.setItem(
-            "user",
-            JSON.stringify(newUser)
-        );
-
         setToken(newToken);
-        setUser(newUser);
+        setClaims(decodeToken(newToken));
     };
 
     const logout = () => {
-
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
         setToken(null);
+        setClaims(null);
         setUser(null);
     };
 
@@ -45,15 +60,18 @@ function AuthProvider({ children }) {
         <AuthContext.Provider
             value={{
                 token,
-                user,
                 login,
                 logout,
-                isAuthenticated: !!token
+                isAuthenticated: !!token,
+                role: claims?.role ?? null,
+                userId: claims?.id ?? null,
+                user
             }}
         >
             {children}
         </AuthContext.Provider>
     );
+
 }
 
 export default AuthProvider;

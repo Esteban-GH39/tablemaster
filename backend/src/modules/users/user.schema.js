@@ -24,7 +24,11 @@ export const createUserSchema = z.object({
 export const updateUserSchema = createUserSchema;
 
 export const patchUserSchema = z.object({
-    body: createUserSchema.shape.body.partial()
+    body: createUserSchema.shape.body
+        .partial()
+        .extend({
+            isActive: z.boolean().optional()
+        })
 });
 
 export const userIdSchema = z.object({

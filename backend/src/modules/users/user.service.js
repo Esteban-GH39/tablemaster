@@ -1,6 +1,16 @@
 import { pool } from "../../config/database.js";
 import { hashPassword } from "../../utils/password.js";
 
+const mapUser = (user) => user && ({
+    id: user.id,
+    fullName: user.full_name,
+    email: user.email,
+    role: user.role,
+    isActive: user.is_active,
+    createdAt: user.created_at,
+    updatedAt: user.updated_at
+});
+
 export const countUsers = async () => {
     const { rows } = await pool.query(`SELECT COUNT(*)::int AS count FROM users;`);
     return rows[0].count;
@@ -19,7 +29,7 @@ export const getUsers = async () => {
         FROM users
         ORDER BY full_name;
     `);
-    return rows;
+    return rows.map(mapUser);
 };
 
 export const getUserById = async (id) => {
@@ -35,7 +45,7 @@ export const getUserById = async (id) => {
         FROM users
         WHERE id = $1;
     `,[id]);
-    return rows[0];
+    return mapUser(rows[0]);
 };
 export const createUser = async(data)=>{
     const {
@@ -70,7 +80,7 @@ export const createUser = async(data)=>{
         passwordHash,
         role
     ]);
-    return rows[0];
+    return mapUser(rows[0]);
 }
 
 export const updateUser = async(id,data)=>{
@@ -106,10 +116,16 @@ export const updateUser = async(id,data)=>{
         role,
         id
     ]);
-    return rows[0];
+    return mapUser(rows[0]);
 }
 
 export const patchUser = async(id,data)=>{
+    // Si viene contraseña nueva, se hashea igual que en create/update.
+    // Antes se guardaba directo del body sin pasar por bcrypt.
+    const passwordHash = data.password
+        ? await hashPassword(data.password)
+        : undefined;
+
     const {rows}=await pool.query(`
         UPDATE users
         SET
@@ -117,8 +133,9 @@ export const patchUser = async(id,data)=>{
             email=COALESCE($2,email),
             password=COALESCE($3,password),
             role=COALESCE($4,role),
+            is_active=COALESCE($5,is_active),
             updated_at=NOW()
-        WHERE id=$5
+        WHERE id=$6
         RETURNING
             id,
             full_name,
@@ -131,11 +148,12 @@ export const patchUser = async(id,data)=>{
     [
         data.fullName,
         data.email,
-        data.password,
+        passwordHash,
         data.role,
+        data.isActive,
         id
     ]);
-    return rows[0];
+    return mapUser(rows[0]);
 }
 
 export const deleteUser = async(id)=>{
@@ -152,5 +170,5 @@ export const deleteUser = async(id)=>{
             role,
             is_active;
     `,[id]);
-    return rows[0];
+    return mapUser(rows[0]);
 }

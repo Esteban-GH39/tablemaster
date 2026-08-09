@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
     createUser,
     updateUser
-} from "../../services/users.service";
+} from "../../services/user.service";
 
 import Input from "../../components/ui/Input/Input";
 import Button from "../../components/ui/Button/Button";

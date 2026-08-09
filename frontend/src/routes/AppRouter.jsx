@@ -4,13 +4,13 @@ import ProtectedRoute from "./ProtectedRoute";
 
 import Dashboard from "../pages/Dashboard";
 import Players from "../pages/Players";
-import Users from "../pages/Users";
 import Tournaments from "../pages/Tournaments";
 import Ranking from "../pages/Ranking";
 import Teams from "../pages/Teams";
 import Matches from "../pages/Matches";
 import HeadToHead from "../pages/HeadToHead";
 import Statistics from "../pages/Statistics";
+import Users from "../pages/Users";
 import NotFound from "../pages/NotFound";
 
 import DashboardLayout from "../layouts/DashboardLayout";
@@ -102,7 +102,7 @@ function AppRouter() {
                             </ProtectedRoute>}
                     />
 
-                    <Route 
+                    <Route
                         path="/users"
                         element={
                             <ProtectedRoute>

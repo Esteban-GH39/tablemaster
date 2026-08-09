@@ -1,7 +1,7 @@
-import UserPage from "../features/users/UserPage";
+import UsersPage from "../features/users/UsersPage";
 
-function Users()  {
-    return <UserPage />;
+function Users() {
+    return <UsersPage />;
 }
 
 export default Users;
