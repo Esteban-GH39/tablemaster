@@ -1,0 +1,157 @@
+.group-standings{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.group-standings-empty{
+    padding:40px 20px;
+    text-align:center;
+    color:var(--text-muted);
+    background:var(--color-white);
+    border-radius:var(--radius-lg);
+    border:1px dashed var(--color-gray-300);
+}
+
+.group-card{
+    background:var(--color-white);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+    border:1px solid var(--color-gray-100);
+    padding:18px 20px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.group-card-header h3{
+    margin:0;
+    font-size:1.05rem;
+}
+
+.group-crosstable-wrap{
+    overflow-x:auto;
+}
+
+.group-crosstable{
+    border-collapse:collapse;
+    font-size:.85rem;
+}
+
+.group-crosstable th,
+.group-crosstable td{
+    border:1px solid var(--color-gray-200, var(--color-gray-300));
+    text-align:center;
+    padding:8px 12px;
+    min-width:36px;
+}
+
+.group-crosstable th{
+    background:var(--color-gray-100);
+    font-weight:700;
+    color:var(--text-muted);
+    font-size:.78rem;
+}
+
+.group-crosstable-name-col{
+    text-align:left !important;
+    white-space:nowrap;
+    font-weight:600;
+    min-width:160px !important;
+}
+
+.group-crosstable-pos{
+    display:inline-block;
+    width:20px;
+    height:20px;
+    line-height:20px;
+    border-radius:50%;
+    background:var(--color-gray-100);
+    color:var(--text-muted);
+    font-size:.72rem;
+    font-weight:700;
+    text-align:center;
+    margin-right:8px;
+}
+
+.group-crosstable-diagonal{
+    background:repeating-linear-gradient(
+        45deg,
+        var(--color-gray-100),
+        var(--color-gray-100) 4px,
+        var(--color-white) 4px,
+        var(--color-white) 8px
+    );
+}
+
+.group-crosstable-cell .is-win{
+    color:#006341;
+    font-weight:700;
+}
+
+.group-crosstable-cell .is-loss{
+    color:var(--color-error, #b3261e);
+    font-weight:700;
+}
+
+.group-crosstable-pending{
+    color:var(--text-muted);
+}
+
+.group-crosstable-pts{
+    font-weight:700;
+    background:var(--color-gray-100);
+}
+
+.group-schedule{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    border-top:1px solid var(--color-gray-100);
+    padding-top:12px;
+}
+
+.group-schedule-row{
+    display:grid;
+    grid-template-columns:110px 1fr auto;
+    align-items:center;
+    gap:12px;
+    padding:8px 4px;
+    font-size:.85rem;
+}
+
+.group-schedule-row:nth-child(odd){
+    background:var(--color-gray-100);
+    border-radius:8px;
+}
+
+.group-schedule-label{
+    font-weight:700;
+    color:var(--text-muted);
+    font-size:.78rem;
+    text-transform:uppercase;
+}
+
+.group-schedule-players{
+    color:var(--text-body);
+}
+
+.group-schedule-status{
+    color:var(--text-muted);
+    font-size:.8rem;
+    white-space:nowrap;
+}
+
+.group-schedule-status.is-finished{
+    color:#006341;
+    font-weight:600;
+}
+
+@media(max-width:600px){
+
+    .group-schedule-row{
+        grid-template-columns:1fr;
+        gap:2px;
+    }
+
+}

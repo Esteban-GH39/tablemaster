@@ -59,7 +59,6 @@
     border-collapse: collapse;
     background: white;
     border-radius: 14px;
-    overflow: hidden;
     box-shadow: var(--shadow-md);
 }
 

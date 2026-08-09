@@ -5,6 +5,11 @@ export const getTournaments = async () => {
     return data;
 };
 
+export const getTournamentById = async (id) => {
+    const { data } = await apiClient.get(`/tournaments/${id}`);
+    return data;
+};
+
 export const createTournament = async (tournament) => {
     const { data } = await apiClient.post(
         "/tournaments",

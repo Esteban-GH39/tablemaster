@@ -48,7 +48,6 @@
     border-radius:var(--radius-lg);
     box-shadow:var(--shadow-sm);
     border:1px solid var(--color-gray-100);
-    overflow:hidden;
 }
 
 .users-table{

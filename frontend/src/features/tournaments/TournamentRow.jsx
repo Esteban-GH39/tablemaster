@@ -1,3 +1,6 @@
+import { useNavigate } from "react-router-dom";
+import { ListChecks } from "lucide-react";
+
 import ActionMenu from "../../components/ui/ActionMenu/ActionMenu";
 import Badge from "../../components/ui/Badge/Badge";
 
@@ -5,6 +8,9 @@ import { getStatusVariant, formatStatus } from "../../utils/status";
 import { formatDate } from "../../utils/formatDate";
 
 function TournamentRow({ tournament, onEdit, onDelete }) {
+
+    const navigate = useNavigate();
+
     return (
         <tr>
             <td>
@@ -34,6 +40,13 @@ function TournamentRow({ tournament, onEdit, onDelete }) {
                 <ActionMenu
                     onEdit={() => onEdit(tournament)}
                     onDelete={() => onDelete(tournament)}
+                    extraActions={[
+                        {
+                            label: "Manage entries",
+                            icon: <ListChecks size={15} />,
+                            onClick: () => navigate(`/tournaments/${tournament.id}`)
+                        }
+                    ]}
                 />
             </td>
         </tr>

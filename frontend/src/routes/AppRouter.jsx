@@ -5,6 +5,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import Dashboard from "../pages/Dashboard";
 import Players from "../pages/Players";
 import Tournaments from "../pages/Tournaments";
+import TournamentDetail from "../pages/TournamentDetail";
+import TournamentMatches from "../pages/TournamentMatches";
 import Ranking from "../pages/Ranking";
 import Teams from "../pages/Teams";
 import Matches from "../pages/Matches";
@@ -61,6 +63,24 @@ function AppRouter() {
                         element={
                             <ProtectedRoute>
                                 <Tournaments />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/tournaments/:id"
+                        element={
+                            <ProtectedRoute>
+                                <TournamentDetail />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/tournaments/:id/matches"
+                        element={
+                            <ProtectedRoute>
+                                <TournamentMatches />
                             </ProtectedRoute>
                         }
                     />

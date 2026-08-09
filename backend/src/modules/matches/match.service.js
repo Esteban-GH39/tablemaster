@@ -6,10 +6,13 @@ import { getPlayerById } from "../players/player.service.js";
 const mapMatch = (match) => ({
     id: match.id,
     tournamentId: match.tournament_id,
+    stageId: match.stage_id,
+    groupId: match.group_id,
     playerOneId: match.player_one_id,
     playerTwoId: match.player_two_id,
     winnerId: match.winner_id,
     round: match.round,
+    roundOrder: match.round_order,
     matchOrder: match.match_order,
     setsToWin: match.sets_to_win,
     status: match.status,
@@ -18,12 +21,22 @@ const mapMatch = (match) => ({
     updatedAt: match.updated_at
 });
 
-export const getAllMatches = async () => {
-    const result = await pool.query(`
-        SELECT *
-        FROM matches
-        ORDER BY round, match_order
-    `);
+export const getAllMatches = async (tournamentId) => {
+    const result = tournamentId
+        ? await pool.query(
+            `
+            SELECT *
+            FROM matches
+            WHERE tournament_id = $1
+            ORDER BY round_order, match_order;
+            `,
+            [tournamentId]
+        )
+        : await pool.query(`
+            SELECT *
+            FROM matches
+            ORDER BY round, match_order
+        `);
     return result.rows.map(mapMatch);
 };
 

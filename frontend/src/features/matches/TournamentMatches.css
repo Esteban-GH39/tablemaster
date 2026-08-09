@@ -1,0 +1,127 @@
+.tournament-matches-page{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.tournament-matches-back{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    align-self:flex-start;
+    border:none;
+    background:none;
+    color:var(--text-muted);
+    font-size:.9rem;
+    font-weight:600;
+    cursor:pointer;
+    padding:0;
+}
+
+.tournament-matches-back:hover{
+    color:var(--color-primary);
+}
+
+.tournament-matches-error{
+    text-align:center;
+    padding:60px 20px;
+}
+
+.tournament-matches-header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+}
+
+.tournament-matches-header h1{
+    margin:0;
+    font-size:1.8rem;
+}
+
+.tournament-matches-header p{
+    margin-top:6px;
+    color:var(--text-muted);
+}
+
+.tournament-matches-all-link{
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--color-primary);
+    text-decoration:none;
+}
+
+.tournament-matches-all-link:hover{
+    text-decoration:underline;
+}
+
+.tournament-matches-tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    border-bottom:1px solid var(--color-gray-100);
+    padding-bottom:4px;
+}
+
+.tournament-matches-tab{
+    padding:8px 16px;
+    border:none;
+    background:transparent;
+    border-radius:var(--radius-sm);
+    font-size:.88rem;
+    font-weight:600;
+    color:var(--text-muted);
+    cursor:pointer;
+    transition:var(--transition);
+}
+
+.tournament-matches-tab:hover{
+    background:var(--color-gray-100);
+    color:var(--text-body);
+}
+
+.tournament-matches-tab.is-active{
+    background:var(--color-secondary-light);
+    color:#006341;
+}
+
+.tournament-matches-empty{
+    padding:40px 20px;
+    text-align:center;
+    color:var(--text-muted);
+    background:var(--color-white);
+    border-radius:var(--radius-lg);
+    border:1px dashed var(--color-gray-300);
+}
+
+.tournament-matches-result-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 12px;
+    border:1px solid var(--color-gray-300);
+    border-radius:var(--radius-sm);
+    background:var(--color-white);
+    color:var(--text-muted);
+    font-size:.82rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:var(--transition);
+    white-space:nowrap;
+}
+
+.tournament-matches-result-btn:hover{
+    border-color:#006341;
+    color:#006341;
+    background:var(--color-secondary-light);
+}
+
+@media(max-width:768px){
+
+    .tournament-matches-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+}

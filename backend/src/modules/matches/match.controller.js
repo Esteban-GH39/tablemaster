@@ -24,7 +24,7 @@ export const getHeadToHeadController = async (req, res) => {
 
 export const getMatchesController = async (req, res) => {
     try {
-        const matches = await getAllMatches();
+        const matches = await getAllMatches(req.query.tournamentId);
         res.json(matches);
     } catch (error) {
         res.status(500).json({
