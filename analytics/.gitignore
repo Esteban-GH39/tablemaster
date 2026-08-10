@@ -1,0 +1,37 @@
+# Entornos virtuales
+analytics/.venv/
+.venv/
+venv/
+env/
+
+# Variables de entorno
+.env
+*.env
+.env.*
+!.env.example
+
+# Datos y exports (usualmente pesados o sensibles)
+analytics/data/
+analytics/exports/
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter notebooks - checkpoints
+.ipynb_checkpoints/
+
+# Reportes generados (si son output, no código fuente)
+analytics/reports/*.csv
+analytics/reports/*.xlsx
+analytics/reports/*.pdf
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/

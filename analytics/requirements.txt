@@ -1,2 +1,17 @@
-psycopg[binary]
-python-dotenv
+# psycopg2-binary: conector oficial de Python para hablar con PostgreSQL.
+psycopg2-binary>=2.9.9
+
+# python-dotenv: lee el archivo .env y carga las credenciales como
+#                variables de entorno, para nunca escribir contraseñas
+#                directamente en el código.
+python-dotenv>=1.0.1
+
+# pandas: convierte los resultados crudos de SQL en DataFrames sirve como
+#         estructura de datos central para todo el análisis posterior
+#         (KPIs, dashboards, predicciones).
+pandas>=2.2.2
+
+# scikit-learn: librería estándar de Machine Learning en Python.
+#               Se usó para entrenar un modelo
+#               simple de clasificación (Logistic Regression).
+scikit-learn>=1.4.0
