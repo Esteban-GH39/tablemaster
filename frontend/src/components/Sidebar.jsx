@@ -19,7 +19,8 @@ const menuItems = [
     {
         name: "Teams",
         path: "/teams",
-        icon: Shield
+        icon: Shield,
+        roles: ["admin", "organizer"]
     },
     {
         name: "Tournaments",
@@ -47,6 +48,10 @@ function Sidebar() {
 
     const { role } = useContext(AuthContext);
 
+    const visibleItems = menuItems.filter(
+        (item) => !item.roles || item.roles.includes(role)
+    );
+
     return (
         <aside className="sidebar">
             <div className="sidebar-logo">
@@ -56,7 +61,7 @@ function Sidebar() {
 
             <nav>
                 {
-                    menuItems.map((item) => {
+                    visibleItems.map((item) => {
                         const Icon = item.icon;
                         return(
                             <NavLink

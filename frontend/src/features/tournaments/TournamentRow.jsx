@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ListChecks } from "lucide-react";
 
 import ActionMenu from "../../components/ui/ActionMenu/ActionMenu";
@@ -8,8 +8,6 @@ import { getStatusVariant, formatStatus } from "../../utils/status";
 import { formatDate } from "../../utils/formatDate";
 
 function TournamentRow({ tournament, onEdit, onDelete }) {
-
-    const navigate = useNavigate();
 
     return (
         <tr>
@@ -36,18 +34,23 @@ function TournamentRow({ tournament, onEdit, onDelete }) {
             <td>
                 {tournament.maxPlayers}
             </td>
-            <td>
-                <ActionMenu
-                    onEdit={() => onEdit(tournament)}
-                    onDelete={() => onDelete(tournament)}
-                    extraActions={[
-                        {
-                            label: "Manage entries",
-                            icon: <ListChecks size={15} />,
-                            onClick: () => navigate(`/tournaments/${tournament.id}`)
-                        }
-                    ]}
-                />
+            <td className="tournament-row-actions">
+                <Link
+                    to={`/tournaments/${tournament.id}`}
+                    className="tournament-view-link"
+                >
+                    <ListChecks size={15} />
+                    View
+                </Link>
+
+                {
+                    (onEdit || onDelete) && (
+                        <ActionMenu
+                            onEdit={onEdit ? () => onEdit(tournament) : undefined}
+                            onDelete={onDelete ? () => onDelete(tournament) : undefined}
+                        />
+                    )
+                }
             </td>
         </tr>
     );

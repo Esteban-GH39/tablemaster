@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { getTeams, deleteTeam } from "../../services/teams.service";
 
@@ -12,11 +12,16 @@ import Button from "../../components/ui/Button/Button";
 import useModal from "../../hooks/useModal";
 import useFetch from "../../hooks/useFetch";
 
+import { AuthContext } from "../../context/AuthContext";
+
 import "./Team.css";
 
 function TeamPage() {
     const [search, setSearch] = useState("");
     const modal = useModal();
+
+    const { role } = useContext(AuthContext);
+    const canManage = role === "admin" || role === "organizer";
 
     const [managingTeam, setManagingTeam] = useState(null);
 
@@ -68,12 +73,20 @@ function TeamPage() {
                 <div>
                     <h1>Teams</h1>
                     <p>
-                        Manage all registered teams
+                        {
+                            canManage
+                                ? "Manage all registered teams"
+                                : "Browse all registered teams"
+                        }
                     </p>
                 </div>
-                <Button onClick={modal.open}>
-                    + New Team
-                </Button>
+                {
+                    canManage && (
+                        <Button onClick={modal.open}>
+                            + New Team
+                        </Button>
+                    )
+                }
             </div>
             <SearchBar
                 placeholder="Search teams..."
@@ -82,9 +95,9 @@ function TeamPage() {
             />
             <TeamTable
                 teams={filteredTeams}
-                onEdit={modal.edit}
-                onDelete={handleDeleteTeam}
-                onManagePlayers={setManagingTeam}
+                onEdit={canManage ? modal.edit : undefined}
+                onDelete={canManage ? handleDeleteTeam : undefined}
+                onManagePlayers={canManage ? setManagingTeam : undefined}
             />
             {
                 modal.isOpen && (

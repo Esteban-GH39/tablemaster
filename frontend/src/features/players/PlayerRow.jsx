@@ -15,12 +15,16 @@ function PlayerRow({ player, onEdit, onDelete }) {
             <td><span className="player-tag">{player.playStyle}</span></td>
             <td><span className="player-tag">{player.dominantHand}</span></td>
             <td>
-                <div className="player-actions-cell">
-                    <ActionMenu
-                        onEdit={() => onEdit(player)}
-                        onDelete={() => onDelete(player)}
-                    />
-                </div>
+                {
+                    (onEdit || onDelete) && (
+                        <div className="player-actions-cell">
+                            <ActionMenu
+                                onEdit={onEdit ? () => onEdit(player) : undefined}
+                                onDelete={onDelete ? () => onDelete(player) : undefined}
+                            />
+                        </div>
+                    )
+                }
             </td>
         </tr>
     );

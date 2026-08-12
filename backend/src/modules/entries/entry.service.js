@@ -1,7 +1,7 @@
 import { pool } from "../../config/database.js";
 
 import { getTournamentById } from "../tournaments/tournament.service.js";
-import { getPlayerById } from "../players/player.service.js";
+import { getPlayerById, getPlayerByUserId } from "../players/player.service.js";
 import { getTeamById } from "../teams/team.service.js";
 
 export const createEntry = async (tournamentId, entryData) => {
@@ -92,6 +92,46 @@ export const createEntry = async (tournamentId, entryData) => {
             seed ?? null
         ]
     );
+    return result.rows[0];
+};
+
+// Auto-inscripcion: un usuario con rol "player" se inscribe a si mismo,
+// usando el jugador vinculado a su cuenta (players.user_id). No puede
+// inscribir a otro jugador ni a un equipo ajeno.
+export const createSelfEntry = async (tournamentId, userId) => {
+    const player = await getPlayerByUserId(userId);
+
+    if (!player) {
+        throw new Error(
+            "You need a player profile linked to your account before joining a tournament"
+        );
+    }
+
+    return createEntry(tournamentId, { playerId: player.id });
+};
+
+export const deleteSelfEntry = async (tournamentId, userId) => {
+    const player = await getPlayerByUserId(userId);
+
+    if (!player) {
+        throw new Error("Player profile not found");
+    }
+
+    const result = await pool.query(
+        `
+        DELETE
+        FROM tournament_entries
+        WHERE tournament_id = $1
+        AND player_id = $2
+        RETURNING *;
+        `,
+        [tournamentId, player.id]
+    );
+
+    if (!result.rows.length) {
+        throw new Error("You are not registered in this tournament");
+    }
+
     return result.rows[0];
 };
 

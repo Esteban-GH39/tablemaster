@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { getPlayers, deletePlayer } from "../../services/players.service";
 
@@ -11,11 +11,17 @@ import Button from "../../components/ui/Button/Button";
 import useModal from "../../hooks/useModal";
 import useFetch from "../../hooks/useFetch";
 
+import { AuthContext } from "../../context/AuthContext";
+
 import "./Player.css";
 
 function PlayerPage() {
     const [search, setSearch] = useState("");
     const modal = useModal();
+
+    const { role, userId } = useContext(AuthContext);
+    const canManage = role === "admin" || role === "organizer";
+    const isPlayer = role === "player";
 
     const {
         data: players,
@@ -23,6 +29,13 @@ function PlayerPage() {
         error,
         reload
     } = useFetch(getPlayers);
+
+    const myPlayer = isPlayer
+        ? players.find((player) => player.userId === userId)
+        : null;
+
+    const canEditRow = (player) =>
+        canManage || (isPlayer && player.userId === userId);
 
     const handlePlayerCreated = () => {
         modal.close();
@@ -68,12 +81,27 @@ function PlayerPage() {
                 <div>
                     <h1>Players</h1>
                     <p>
-                        Manage all registered players
+                        {
+                            canManage
+                                ? "Manage all registered players"
+                                : "Browse all registered players"
+                        }
                     </p>
                 </div>
-                <Button onClick={modal.open}>
-                    + New Player
-                </Button>
+                {
+                    canManage && (
+                        <Button onClick={modal.open}>
+                            + New Player
+                        </Button>
+                    )
+                }
+                {
+                    isPlayer && !myPlayer && (
+                        <Button onClick={modal.open}>
+                            + Create my player profile
+                        </Button>
+                    )
+                }
             </div>
             <SearchBar
                 placeholder="Search players..."
@@ -84,8 +112,9 @@ function PlayerPage() {
             />
             <PlayerTable
                 players={filteredPlayers}
-                onEdit={modal.edit}
-                onDelete={handleDeletePlayer}
+                onEdit={canManage || isPlayer ? modal.edit : undefined}
+                onDelete={canManage ? handleDeletePlayer : undefined}
+                canEditRow={canEditRow}
             />
             {
                 modal.isOpen && (

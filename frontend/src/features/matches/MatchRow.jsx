@@ -9,10 +9,13 @@ import { MATCH_FORMAT_LABELS } from "../../utils/constants";
 
 function MatchRow({ match, playerName, tournamentName, onEdit, onDelete, onRegisterResult }) {
     const canRegisterResult =
+        !!onRegisterResult &&
         match.status !== "finished" &&
         match.status !== "cancelled" &&
         !!match.playerOneId &&
         !!match.playerTwoId;
+
+    const hasAnyAction = !!onEdit || !!onDelete || canRegisterResult;
 
     return (
         <tr>
@@ -49,19 +52,23 @@ function MatchRow({ match, playerName, tournamentName, onEdit, onDelete, onRegis
                 {formatDate(match.playedAt)}
             </td>
             <td>
-                <ActionMenu
-                    onEdit={() => onEdit(match)}
-                    onDelete={() => onDelete(match)}
-                    extraActions={
-                        canRegisterResult
-                            ? [{
-                                label: "Register Result",
-                                icon: <Trophy size={15} />,
-                                onClick: () => onRegisterResult(match)
-                            }]
-                            : []
-                    }
-                />
+                {
+                    hasAnyAction && (
+                        <ActionMenu
+                            onEdit={onEdit ? () => onEdit(match) : undefined}
+                            onDelete={onDelete ? () => onDelete(match) : undefined}
+                            extraActions={
+                                canRegisterResult
+                                    ? [{
+                                        label: "Register Result",
+                                        icon: <Trophy size={15} />,
+                                        onClick: () => onRegisterResult(match)
+                                    }]
+                                    : []
+                            }
+                        />
+                    )
+                }
             </td>
         </tr>
     );

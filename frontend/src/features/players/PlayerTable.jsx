@@ -1,6 +1,6 @@
 import PlayerRow from "./PlayerRow";
 
-function PlayerTable({ players, onEdit, onDelete }) {
+function PlayerTable({ players, onEdit, onDelete, canEditRow }) {
     return (
         <div className="table-container">
             <table className="players-table">
@@ -21,7 +21,11 @@ function PlayerTable({ players, onEdit, onDelete }) {
                             <PlayerRow
                                 key={player.id}
                                 player={player}
-                                onEdit={onEdit}
+                                onEdit={
+                                    onEdit && (!canEditRow || canEditRow(player))
+                                        ? onEdit
+                                        : undefined
+                                }
                                 onDelete={onDelete}
                             />
                         ))

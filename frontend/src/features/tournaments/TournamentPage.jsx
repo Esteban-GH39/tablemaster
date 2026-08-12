@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { getTournaments, deleteTournament } from "../../services/tournaments.service";
 
@@ -8,9 +8,14 @@ import Button from "../../components/ui/Button/Button";
 import TournamentTable from "./TournamentTable";
 import TournamentModal from "./TournamentModal";
 
+import { AuthContext } from "../../context/AuthContext";
+
 import "./Tournament.css";
 
 function TournamentPage() {
+
+    const { role } = useContext(AuthContext);
+    const canManage = role === "admin" || role === "organizer";
 
     const [tournaments, setTournaments] = useState([]);
     const [selectedTournament, setSelectedTournament] = useState(null);
@@ -69,17 +74,25 @@ function TournamentPage() {
                 <div>
                     <h1>Tournaments</h1>
                     <p>
-                        Manage all tournaments
+                        {
+                            canManage
+                                ? "Manage all tournaments"
+                                : "Browse tournaments and join the ones open for registration"
+                        }
                     </p>
                 </div>
-                <Button
-                    onClick={() => {
-                        setSelectedTournament(null);
-                        setIsModalOpen(true);
-                    }}
-                >
-                    + New Tournament
-                </Button>
+                {
+                    canManage && (
+                        <Button
+                            onClick={() => {
+                                setSelectedTournament(null);
+                                setIsModalOpen(true);
+                            }}
+                        >
+                            + New Tournament
+                        </Button>
+                    )
+                }
             </div>
             <SearchBar
                 placeholder="Search tournaments..."
@@ -88,8 +101,8 @@ function TournamentPage() {
             />
             <TournamentTable
                 tournaments={filteredTournaments}
-                onEdit={handleEditTournament}
-                onDelete={handleDeleteTournament}
+                onEdit={canManage ? handleEditTournament : undefined}
+                onDelete={canManage ? handleDeleteTournament : undefined}
             />
             {
                 isModalOpen &&

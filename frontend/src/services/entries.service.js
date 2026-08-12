@@ -17,3 +17,17 @@ export const deleteEntry = async (entryId) => {
     const response = await apiClient.delete(`/tournaments/entries/${entryId}`);
     return response.data;
 };
+
+export const joinTournament = async (tournamentId) => {
+    const response = await apiClient.post(
+        `/tournaments/${tournamentId}/entries/self`
+    );
+    return response.data;
+};
+
+export const leaveTournament = async (tournamentId) => {
+    const response = await apiClient.delete(
+        `/tournaments/${tournamentId}/entries/self`
+    );
+    return response.data;
+};

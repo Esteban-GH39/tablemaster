@@ -15,7 +15,9 @@ import {
 import {
     createEntryController,
     getEntriesController,
-    deleteEntryController
+    deleteEntryController,
+    createSelfEntryController,
+    deleteSelfEntryController
 } from "./entry.controller.js";
 
 const router = Router();
@@ -33,6 +35,24 @@ router.post(
     validate(tournamentIdSchema),
     validate(createEntrySchema),
     createEntryController
+);
+
+// Auto-inscripcion de un player a un torneo (usa su propio perfil de
+// jugador, no puede inscribir a otros).
+router.post(
+    "/:id/entries/self",
+    auth,
+    requireRole("player"),
+    validate(tournamentIdSchema),
+    createSelfEntryController
+);
+
+router.delete(
+    "/:id/entries/self",
+    auth,
+    requireRole("player"),
+    validate(tournamentIdSchema),
+    deleteSelfEntryController
 );
 
 router.delete(

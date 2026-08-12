@@ -16,22 +16,30 @@ function TeamRow({ team, onEdit, onDelete, onManagePlayers }) {
                 </Badge>
             </td>
             <td>
-                <button
-                    type="button"
-                    className="team-manage-players-btn"
-                    onClick={() => onManagePlayers(team)}
-                >
-                    <Users size={15} />
-                    Manage players
-                </button>
+                {
+                    onManagePlayers && (
+                        <button
+                            type="button"
+                            className="team-manage-players-btn"
+                            onClick={() => onManagePlayers(team)}
+                        >
+                            <Users size={15} />
+                            Manage players
+                        </button>
+                    )
+                }
             </td>
             <td>
-                <div className="team-actions-cell">
-                    <ActionMenu
-                        onEdit={() => onEdit(team)}
-                        onDelete={() => onDelete(team)}
-                    />
-                </div>
+                {
+                    (onEdit || onDelete) && (
+                        <div className="team-actions-cell">
+                            <ActionMenu
+                                onEdit={onEdit ? () => onEdit(team) : undefined}
+                                onDelete={onDelete ? () => onDelete(team) : undefined}
+                            />
+                        </div>
+                    )
+                }
             </td>
         </tr>
     );

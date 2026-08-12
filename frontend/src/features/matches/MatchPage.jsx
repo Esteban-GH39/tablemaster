@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { getMatches, deleteMatch } from "../../services/matches.service";
@@ -12,9 +12,18 @@ import MatchTable from "./MatchTable";
 import MatchModal from "./MatchModal";
 import MatchResultModal from "../matchResults/MatchResultModal";
 
+import { AuthContext } from "../../context/AuthContext";
+
 import "./Match.css";
 
+const RESULT_ROLES = ["admin", "organizer", "referee"];
+
 function MatchPage() {
+
+    const { role, userId } = useContext(AuthContext);
+    const canManage = role === "admin" || role === "organizer";
+    const canRegisterResults = RESULT_ROLES.includes(role);
+    const isPlayer = role === "player";
 
     const [matches, setMatches] = useState([]);
     const [players, setPlayers] = useState([]);
@@ -92,7 +101,20 @@ function MatchPage() {
         return tournament ? tournament.name : "Unknown tournament";
     };
 
-    const filteredMatches = matches.filter((match) => {
+    const myPlayer = isPlayer
+        ? players.find((player) => player.userId === userId)
+        : null;
+
+    const visibleMatches = isPlayer
+        ? matches.filter((match) =>
+            myPlayer && (
+                match.playerOneId === myPlayer.id ||
+                match.playerTwoId === myPlayer.id
+            )
+        )
+        : matches;
+
+    const filteredMatches = visibleMatches.filter((match) => {
         const term = search.toLowerCase();
         return (
             playerName(match.playerOneId).toLowerCase().includes(term) ||
@@ -106,23 +128,31 @@ function MatchPage() {
         <div className="match-page">
             <div className="match-page-header">
                 <div>
-                    <h1>Matches</h1>
+                    <h1>{isPlayer ? "My Matches" : "Matches"}</h1>
                     <p>
-                        Manage all matches
+                        {
+                            isPlayer
+                                ? "Your matches, in tournaments and friendlies"
+                                : "Manage all matches"
+                        }
                     </p>
                 </div>
                 <div className="match-page-actions">
                     <Link to="/matches/head-to-head" className="btn-secondary-link">
                         Head to Head
                     </Link>
-                    <Button
-                        onClick={() => {
-                            setSelectedMatch(null);
-                            setIsModalOpen(true);
-                        }}
-                    >
-                        + New Match
-                    </Button>
+                    {
+                        canManage && (
+                            <Button
+                                onClick={() => {
+                                    setSelectedMatch(null);
+                                    setIsModalOpen(true);
+                                }}
+                            >
+                                + New Match
+                            </Button>
+                        )
+                    }
                 </div>
             </div>
             <SearchBar
@@ -134,9 +164,9 @@ function MatchPage() {
                 matches={filteredMatches}
                 playerName={playerName}
                 tournamentName={tournamentName}
-                onEdit={handleEditMatch}
-                onDelete={handleDeleteMatch}
-                onRegisterResult={handleRegisterResult}
+                onEdit={canManage ? handleEditMatch : undefined}
+                onDelete={canManage ? handleDeleteMatch : undefined}
+                onRegisterResult={canRegisterResults ? handleRegisterResult : undefined}
             />
             {
                 isModalOpen &&

@@ -5,7 +5,12 @@ import { ArrowLeft, ListChecks, Trash2, Trophy } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 
 import { getTournamentById } from "../../services/tournaments.service";
-import { getEntries, deleteEntry } from "../../services/entries.service";
+import {
+    getEntries,
+    deleteEntry,
+    joinTournament,
+    leaveTournament
+} from "../../services/entries.service";
 import { getPlayers } from "../../services/players.service";
 import { startCompetition } from "../../services/competition.service";
 
@@ -26,9 +31,10 @@ function TournamentDetailPage() {
 
     const { id } = useParams();
     const navigate = useNavigate();
-    const { role } = useContext(AuthContext);
+    const { role, userId } = useContext(AuthContext);
 
     const canManage = role === "admin" || role === "organizer";
+    const isPlayer = role === "player";
 
     const fetchTournament = useCallback(
         () => getTournamentById(id),
@@ -60,6 +66,8 @@ function TournamentDetailPage() {
     const [showEntryModal, setShowEntryModal] = useState(false);
     const [starting, setStarting] = useState(false);
     const [startError, setStartError] = useState("");
+    const [joining, setJoining] = useState(false);
+    const [joinError, setJoinError] = useState("");
 
     const isRegistrationOpen = tournament?.status === "registration";
 
@@ -70,6 +78,16 @@ function TournamentDetailPage() {
     const availablePlayers = (players || []).filter(
         (player) => !registeredPlayerIds.has(player.id)
     );
+
+    // Jugador vinculado a la cuenta actual (players.user_id === userId),
+    // usado para saber si ya esta inscrito y para el boton de unirse/retirarse.
+    const myPlayer = (players || []).find(
+        (player) => player.userId === userId
+    );
+
+    const myEntry = myPlayer
+        ? (entries || []).find((entry) => entry.player_id === myPlayer.id)
+        : null;
 
     const handleEntryRegistered = () => {
         setShowEntryModal(false);
@@ -91,6 +109,47 @@ function TournamentDetailPage() {
                 error.response?.data?.message ||
                 "Error removing entry"
             );
+        }
+
+    };
+
+    const handleJoinTournament = async () => {
+
+        try {
+            setJoining(true);
+            setJoinError("");
+            await joinTournament(id);
+            reloadEntries();
+        } catch (error) {
+            setJoinError(
+                error.response?.data?.message ||
+                "Error joining tournament"
+            );
+        } finally {
+            setJoining(false);
+        }
+
+    };
+
+    const handleLeaveTournament = async () => {
+
+        const confirmed = window.confirm(
+            "Withdraw from this tournament?"
+        );
+        if (!confirmed) return;
+
+        try {
+            setJoining(true);
+            setJoinError("");
+            await leaveTournament(id);
+            reloadEntries();
+        } catch (error) {
+            setJoinError(
+                error.response?.data?.message ||
+                "Error withdrawing from tournament"
+            );
+        } finally {
+            setJoining(false);
         }
 
     };
@@ -186,13 +245,55 @@ function TournamentDetailPage() {
                         )
                     }
 
+                    {
+                        isPlayer && isRegistrationOpen && myPlayer && (
+                            myEntry ? (
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleLeaveTournament}
+                                    disabled={joining}
+                                >
+                                    {joining ? "Withdrawing..." : "Withdraw"}
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="primary"
+                                    onClick={handleJoinTournament}
+                                    disabled={
+                                        joining ||
+                                        (entries?.length || 0) >= tournament.maxPlayers
+                                    }
+                                >
+                                    <Trophy size={16} style={{ marginRight: 6, verticalAlign: "-3px" }} />
+                                    {joining ? "Joining..." : "Join Tournament"}
+                                </Button>
+                            )
+                        )
+                    }
+
                 </div>
             </div>
+
+            {
+                isPlayer && isRegistrationOpen && !myPlayer && (
+                    <p className="tournament-detail-hint">
+                        You need a player profile linked to your account before you can join a tournament.
+                    </p>
+                )
+            }
 
             {
                 startError && (
                     <p className="tournament-detail-alert">
                         {startError}
+                    </p>
+                )
+            }
+
+            {
+                joinError && (
+                    <p className="tournament-detail-alert">
+                        {joinError}
                     </p>
                 )
             }
