@@ -13,5 +13,11 @@ pandas>=2.2.2
 
 # scikit-learn: librería estándar de Machine Learning en Python.
 #               Se usó para entrenar un modelo
-#               simple de clasificación (Logistic Regression).
+#               simple de clasificación.
 scikit-learn>=1.4.0
+
+# fastapi + uvicorn: exponen las funciones de este módulo por HTTP, para
+#                     que el backend de Node y el frontend puedan
+#                     consumirlas.
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0

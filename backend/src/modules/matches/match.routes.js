@@ -10,6 +10,13 @@ import {
     getHeadToHeadController
 } from "./match.controller.js";
 
+import {
+    proposeFriendlyMatchController,
+    confirmFriendlyMatchController,
+    rejectFriendlyMatchController,
+    getPendingConfirmationsController
+} from "./friendlyMatch.controller.js";
+
 import { auth } from "../../middlewares/auth.js";
 import { requireRole } from "../../middlewares/requireRole.js";
 import { validate } from "../../middlewares/validate.js";
@@ -22,6 +29,11 @@ import {
     headToHeadSchema
 } from "./match.schema.js";
 
+import {
+    proposeFriendlyMatchSchema,
+    friendlyMatchIdSchema
+} from "./friendlyMatch.schema.js";
+
 const router = Router();
 
 router.get("/", getMatchesController);
@@ -30,6 +42,33 @@ router.get(
     "/head-to-head",
     validate(headToHeadSchema),
     getHeadToHeadController
+);
+
+router.get(
+    "/pending-confirmations",
+    auth,
+    getPendingConfirmationsController
+);
+
+router.post(
+    "/friendly",
+    auth,
+    validate(proposeFriendlyMatchSchema),
+    proposeFriendlyMatchController
+);
+
+router.post(
+    "/:id/confirm",
+    auth,
+    validate(friendlyMatchIdSchema),
+    confirmFriendlyMatchController
+);
+
+router.post(
+    "/:id/reject",
+    auth,
+    validate(friendlyMatchIdSchema),
+    rejectFriendlyMatchController
 );
 
 router.get(
