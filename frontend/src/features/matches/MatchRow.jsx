@@ -7,15 +7,16 @@ import { getStatusVariant, formatStatus } from "../../utils/status";
 import { formatDate } from "../../utils/formatDate";
 import { MATCH_FORMAT_LABELS } from "../../utils/constants";
 
-function MatchRow({ match, playerName, tournamentName, onEdit, onDelete, onRegisterResult }) {
+function MatchRow({ match, playerName, tournamentName, canManage, canRegisterResults, onEdit, onDelete, onRegisterResult }) {
+
     const canRegisterResult =
-        !!onRegisterResult &&
+        canRegisterResults &&
         match.status !== "finished" &&
         match.status !== "cancelled" &&
         !!match.playerOneId &&
         !!match.playerTwoId;
 
-    const hasAnyAction = !!onEdit || !!onDelete || canRegisterResult;
+    const showActionsCell = canManage || canRegisterResult;
 
     return (
         <tr>
@@ -51,12 +52,12 @@ function MatchRow({ match, playerName, tournamentName, onEdit, onDelete, onRegis
             <td>
                 {formatDate(match.playedAt)}
             </td>
-            <td>
-                {
-                    hasAnyAction && (
+            {
+                showActionsCell && (
+                    <td>
                         <ActionMenu
-                            onEdit={onEdit ? () => onEdit(match) : undefined}
-                            onDelete={onDelete ? () => onDelete(match) : undefined}
+                            onEdit={canManage ? () => onEdit(match) : undefined}
+                            onDelete={canManage ? () => onDelete(match) : undefined}
                             extraActions={
                                 canRegisterResult
                                     ? [{
@@ -67,9 +68,9 @@ function MatchRow({ match, playerName, tournamentName, onEdit, onDelete, onRegis
                                     : []
                             }
                         />
-                    )
-                }
-            </td>
+                    </td>
+                )
+            }
         </tr>
     );
 }

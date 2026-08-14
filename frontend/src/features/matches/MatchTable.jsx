@@ -1,6 +1,9 @@
 import MatchRow from "./MatchRow";
 
-function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete, onRegisterResult }) {
+function MatchTable({ matches, playerName, tournamentName, canManage, canRegisterResults, onEdit, onDelete, onRegisterResult }) {
+
+    const showActionsColumn = canManage || canRegisterResults;
+
     return (
         <div className="table-container">
             <table className="matches-table">
@@ -14,7 +17,7 @@ function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete, onR
                         <th>Format</th>
                         <th>Status</th>
                         <th>Played At</th>
-                        <th></th>
+                        {showActionsColumn && <th></th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -22,7 +25,7 @@ function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete, onR
                         matches.length === 0
                             ? (
                                 <tr>
-                                    <td colSpan={9} className="match-empty">
+                                    <td colSpan={showActionsColumn ? 9 : 8} className="match-empty">
                                         No matches found
                                     </td>
                                 </tr>
@@ -33,6 +36,8 @@ function MatchTable({ matches, playerName, tournamentName, onEdit, onDelete, onR
                                     match={match}
                                     playerName={playerName}
                                     tournamentName={tournamentName}
+                                    canManage={canManage}
+                                    canRegisterResults={canRegisterResults}
                                     onEdit={onEdit}
                                     onDelete={onDelete}
                                     onRegisterResult={onRegisterResult}

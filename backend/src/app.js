@@ -14,6 +14,7 @@ import statisticsRoutes from "./modules/statistics/statistics.routes.js";
 import rankingRoutes from "./modules/ranking/ranking.routes.js";
 import userRoutes from "./modules/users/user.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import challengeRoutes from "./modules/challenges/challenge.routes.js";
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/statistics", statisticsRoutes);
 app.use("/api/ranking", rankingRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/challenges", challengeRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {

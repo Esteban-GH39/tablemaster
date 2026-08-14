@@ -3,7 +3,7 @@ import { recalculateGroup, areGroupsFinished, generateKnockout, finishTournament
 import { advanceWinner } from "../../helpers/bracket/bracket.advance.js"
 import { updateStatistics } from "../statistics/statistics.service.js";
 
-const validateSet = (playerOneScore, playerTwoScore) => {
+export const validateSet = (playerOneScore, playerTwoScore) => {
     if (playerOneScore === playerTwoScore) {
         return false;
     }
@@ -18,7 +18,7 @@ const validateSet = (playerOneScore, playerTwoScore) => {
     return winner - loser === 2;
 };
 
-const validateMatch = (sets, setsToWin) => {
+export const validateMatch = (sets, setsToWin) => {
     let playerOneSets = 0;
     let playerTwoSets = 0;
     for (const set of sets) {
@@ -69,7 +69,8 @@ export const registerMatchResult = async (matchId, sets) => {
         }
         if (
             match.status !== "pending" &&
-            match.status !== "in_progress"
+            match.status !== "in_progress" &&
+            match.status !== "awaiting_confirmation"
         ) {
             throw new Error("Match is not ready to be played");
         }
@@ -147,8 +148,7 @@ export const registerMatchResult = async (matchId, sets) => {
                 matchId
             ]
         );
-        // Standalone / friendly matches (no tournament) don't feed statistics
-        // or bracket progression - those are tournament-only concepts.
+        
         if (match.tournament_id) {
             await updateStatistics(
                 match.tournament_id,
@@ -170,8 +170,6 @@ export const registerMatchResult = async (matchId, sets) => {
             );
         }
 
-        // Bracket/group advancement only applies to matches generated as part
-        // of a stage (round robin group or knockout bracket).
         if (match.stage_id) {
             const stageResult = await pool.query(
                 `
