@@ -33,3 +33,27 @@ export const getHeadToHead = async (playerOneId, playerTwoId) => {
     });
     return response.data;
 };
+
+export const proposeFriendlyMatch = async ({ opponentId, sets, setsToWin }) => {
+    const response = await apiClient.post("/matches/friendly", {
+        opponentId,
+        sets,
+        setsToWin
+    });
+    return response.data;
+};
+
+export const getPendingConfirmations = async () => {
+    const response = await apiClient.get("/matches/pending-confirmations");
+    return response.data;
+};
+
+export const confirmFriendlyMatch = async (matchId) => {
+    const response = await apiClient.post(`/matches/${matchId}/confirm`);
+    return response.data;
+};
+
+export const rejectFriendlyMatch = async (matchId) => {
+    const response = await apiClient.post(`/matches/${matchId}/reject`);
+    return response.data;
+};

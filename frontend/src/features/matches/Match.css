@@ -147,3 +147,55 @@
     }
 
 }
+
+.challenge-hint{
+    font-size:14px;
+    color:var(--color-gray-700, #555);
+    background:var(--color-gray-100, #f5f5f5);
+    padding:12px 14px;
+    border-radius:10px;
+    margin:0;
+}
+
+.pending-confirmations{
+    background:var(--color-white, #fff);
+    border:1px solid var(--color-gray-200, #e5e5e5);
+    border-radius:14px;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.pending-confirmations h3{
+    margin:0;
+    font-size:18px;
+}
+
+.pending-confirmations-hint{
+    margin:0;
+    font-size:13px;
+    color:var(--color-gray-500, #888);
+}
+
+.pending-confirmation-card{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 16px;
+    background:var(--color-gray-100, #f5f5f5);
+    border-radius:10px;
+    flex-wrap:wrap;
+}
+
+.pending-confirmation-sets{
+    font-size:13px;
+    color:var(--color-gray-700, #555);
+    margin-top:4px;
+}
+
+.pending-confirmation-actions{
+    display:flex;
+    gap:10px;
+}

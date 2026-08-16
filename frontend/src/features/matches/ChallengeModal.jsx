@@ -1,14 +1,18 @@
 import Modal from "../../components/ui/Modal/Modal";
+
 import ChallengeForm from "./ChallengeForm";
 
-function ChallengeModal({ opponents, myName, onClose, onSuccess }) {
+function ChallengeModal({ myPlayer, players, onClose, onSuccess }) {
     return (
-        <Modal title="Challenge a Player" onClose={onClose} width="480px">
+        <Modal
+            title="Challenge a Player"
+            onClose={onClose}
+        >
             <ChallengeForm
-                opponents={opponents}
-                myName={myName}
-                onClose={onClose}
+                myPlayer={myPlayer}
+                players={players}
                 onSuccess={onSuccess}
+                onClose={onClose}
             />
         </Modal>
     );

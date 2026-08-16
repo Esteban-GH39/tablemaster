@@ -65,11 +65,12 @@ def sync_match_predictions():
         if player_one_id not in win_rates.index or player_two_id not in win_rates.index:
             continue
 
-        probability_one = predict_match(
+        probability_one = float(predict_match(
             model,
             win_rates.loc[player_one_id],
             win_rates.loc[player_two_id],
-        )
+        ))
+        probability_one = round(probability_one, 2)
         probability_two = round(100 - probability_one, 2)
 
         cursor.execute(

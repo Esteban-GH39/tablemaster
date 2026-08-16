@@ -1,8 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Swords } from "lucide-react";
-
-import { AuthContext } from "../../context/AuthContext";
 
 import { getMatches, deleteMatch } from "../../services/matches.service";
 import { getPlayers } from "../../services/players.service";
@@ -17,15 +14,16 @@ import MatchResultModal from "../matchResults/MatchResultModal";
 import ChallengeModal from "./ChallengeModal";
 import PendingConfirmations from "./PendingConfirmations";
 
+import { AuthContext } from "../../context/AuthContext";
+
 import "./Match.css";
 
-const MANAGE_ROLES = ["admin", "organizer"];
 const RESULT_ROLES = ["admin", "organizer", "referee"];
 
 function MatchPage() {
 
     const { role, userId } = useContext(AuthContext);
-    const canManage = MANAGE_ROLES.includes(role);
+    const canManage = role === "admin" || role === "organizer";
     const canRegisterResults = RESULT_ROLES.includes(role);
     const isPlayer = role === "player";
 
@@ -57,9 +55,6 @@ function MatchPage() {
         loadData();
     }, []);
 
-    const me = players.find((player) => player.userId === userId);
-    const opponents = players.filter((player) => player.userId !== userId);
-
     const handleMatchSaved = () => {
         setIsModalOpen(false);
         setSelectedMatch(null);
@@ -77,11 +72,6 @@ function MatchPage() {
 
     const handleResultSaved = () => {
         setResultMatch(null);
-        loadData();
-    };
-
-    const handleChallengeSent = () => {
-        setIsChallengeOpen(false);
         loadData();
     };
 
@@ -114,7 +104,20 @@ function MatchPage() {
         return tournament ? tournament.name : "Unknown tournament";
     };
 
-    const filteredMatches = matches.filter((match) => {
+    const myPlayer = isPlayer
+        ? players.find((player) => player.userId === userId)
+        : null;
+
+    const visibleMatches = isPlayer
+        ? matches.filter((match) =>
+            myPlayer && (
+                match.playerOneId === myPlayer.id ||
+                match.playerTwoId === myPlayer.id
+            )
+        )
+        : matches;
+
+    const filteredMatches = visibleMatches.filter((match) => {
         const term = search.toLowerCase();
         return (
             playerName(match.playerOneId).toLowerCase().includes(term) ||
@@ -128,9 +131,13 @@ function MatchPage() {
         <div className="match-page">
             <div className="match-page-header">
                 <div>
-                    <h1>Matches</h1>
+                    <h1>{isPlayer ? "My Matches" : "Matches"}</h1>
                     <p>
-                        Manage all matches
+                        {
+                            isPlayer
+                                ? "Your matches, in tournaments and friendlies"
+                                : "Manage all matches"
+                        }
                     </p>
                 </div>
                 <div className="match-page-actions">
@@ -138,10 +145,9 @@ function MatchPage() {
                         Head to Head
                     </Link>
                     {
-                        isPlayer && me && (
+                        isPlayer && myPlayer && (
                             <Button onClick={() => setIsChallengeOpen(true)}>
-                                <Swords size={16} style={{ marginRight: 6, verticalAlign: "-3px" }} />
-                                Challenge a Player
+                                + Challenge a Player
                             </Button>
                         )
                     }
@@ -159,13 +165,11 @@ function MatchPage() {
                     }
                 </div>
             </div>
-
             {
-                isPlayer && (
-                    <PendingConfirmations onChanged={loadData} />
+                isPlayer && myPlayer && (
+                    <PendingConfirmations onResolved={loadData} />
                 )
             }
-
             <SearchBar
                 placeholder="Search matches..."
                 value={search}
@@ -175,12 +179,23 @@ function MatchPage() {
                 matches={filteredMatches}
                 playerName={playerName}
                 tournamentName={tournamentName}
-                canManage={canManage}
-                canRegisterResults={canRegisterResults}
-                onEdit={handleEditMatch}
-                onDelete={handleDeleteMatch}
-                onRegisterResult={handleRegisterResult}
+                onEdit={canManage ? handleEditMatch : undefined}
+                onDelete={canManage ? handleDeleteMatch : undefined}
+                onRegisterResult={canRegisterResults ? handleRegisterResult : undefined}
             />
+            {
+                isChallengeOpen && myPlayer && (
+                    <ChallengeModal
+                        myPlayer={myPlayer}
+                        players={players}
+                        onClose={() => setIsChallengeOpen(false)}
+                        onSuccess={() => {
+                            setIsChallengeOpen(false);
+                            loadData();
+                        }}
+                    />
+                )
+            }
             {
                 isModalOpen &&
                 (
@@ -205,16 +220,6 @@ function MatchPage() {
                         playerTwoName={playerName(resultMatch.playerTwoId)}
                         onClose={() => setResultMatch(null)}
                         onSuccess={handleResultSaved}
-                    />
-                )
-            }
-            {
-                isChallengeOpen && me && (
-                    <ChallengeModal
-                        opponents={opponents}
-                        myName={me.fullName}
-                        onClose={() => setIsChallengeOpen(false)}
-                        onSuccess={handleChallengeSent}
                     />
                 )
             }

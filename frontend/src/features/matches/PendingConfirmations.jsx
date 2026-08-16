@@ -2,23 +2,24 @@ import { useEffect, useState } from "react";
 import { Check, X } from "lucide-react";
 
 import {
-    getIncomingChallenges,
-    confirmChallenge,
-    rejectChallenge
-} from "../../services/challenges.service";
+    getPendingConfirmations,
+    confirmFriendlyMatch,
+    rejectFriendlyMatch
+} from "../../services/matches.service";
 
-import "./PendingConfirmations.css";
+import Button from "../../components/ui/Button/Button";
 
-function PendingConfirmations({ onChanged }) {
+function PendingConfirmations({ onResolved }) {
 
-    const [challenges, setChallenges] = useState([]);
+    const [pending, setPending] = useState([]);
     const [loading, setLoading] = useState(true);
     const [busyId, setBusyId] = useState(null);
 
     const load = async () => {
         try {
-            const data = await getIncomingChallenges();
-            setChallenges(data);
+            setLoading(true);
+            const data = await getPendingConfirmations();
+            setPending(data);
         } catch (error) {
             console.error(error);
         } finally {
@@ -30,94 +31,83 @@ function PendingConfirmations({ onChanged }) {
         load();
     }, []);
 
-    const handleConfirm = async (id) => {
-        setBusyId(id);
+    const handleConfirm = async (matchId) => {
+        setBusyId(matchId);
         try {
-            await confirmChallenge(id);
+            await confirmFriendlyMatch(matchId);
             await load();
-            onChanged?.();
+            onResolved?.();
         } catch (error) {
-            alert(error.response?.data?.message || "Error confirming this result.");
+            alert(
+                error.response?.data?.message ||
+                "Error confirming the match"
+            );
         } finally {
             setBusyId(null);
         }
     };
 
-    const handleReject = async (id) => {
-        const confirmed = window.confirm("Reject this reported result?");
+    const handleReject = async (matchId) => {
+        const confirmed = window.confirm("Reject this result? It will be discarded.");
         if (!confirmed) return;
 
-        setBusyId(id);
+        setBusyId(matchId);
         try {
-            await rejectChallenge(id);
+            await rejectFriendlyMatch(matchId);
             await load();
-            onChanged?.();
+            onResolved?.();
         } catch (error) {
-            alert(error.response?.data?.message || "Error rejecting this result.");
+            alert(
+                error.response?.data?.message ||
+                "Error rejecting the match"
+            );
         } finally {
             setBusyId(null);
         }
     };
 
-    if (loading || !challenges.length) return null;
+    if (loading || pending.length === 0) return null;
 
     return (
         <div className="pending-confirmations">
+            <h3>Pending Confirmations</h3>
+            <p className="pending-confirmations-hint">
+                These players say they played you — confirm if the score is right.
+            </p>
 
-            <h2>Pending Confirmations</h2>
-            <p>Results other players reported against you — review before they count.</p>
+            {
+                pending.map((match) => {
+                    const setsSummary = match.proposedSets
+                        .map((set) => `${set.playerOneScore}-${set.playerTwoScore}`)
+                        .join(", ");
 
-            <div className="pending-confirmations-list">
-                {
-                    challenges.map((challenge) => {
-
-                        const sets = challenge.proposedSets || [];
-                        const challengerSets = sets.filter((set) => set.playerOneScore > set.playerTwoScore).length;
-                        const mySets = sets.filter((set) => set.playerTwoScore > set.playerOneScore).length;
-                        const busy = busyId === challenge.id;
-
-                        return (
-                            <div key={challenge.id} className="pending-confirmation-card">
-
-                                <div className="pending-confirmation-info">
-                                    <strong>{challenge.challengerName}</strong>
-                                    <span>reported a result against you</span>
-                                    <span className="pending-confirmation-tally">
-                                        {challengerSets} - {mySets}
-                                    </span>
-                                </div>
-
-                                <div className="pending-confirmation-actions">
-                                    <button
-                                        type="button"
-                                        className="pending-confirmation-confirm"
-                                        onClick={() => handleConfirm(challenge.id)}
-                                        disabled={busy}
-                                    >
-                                        <Check size={15} />
-                                        Confirm
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="pending-confirmation-reject"
-                                        onClick={() => handleReject(challenge.id)}
-                                        disabled={busy}
-                                    >
-                                        <X size={15} />
-                                        Reject
-                                    </button>
-                                </div>
-
+                    return (
+                        <div key={match.id} className="pending-confirmation-card">
+                            <div>
+                                <strong>{match.proposerName}</strong> says they beat/played you
+                                <div className="pending-confirmation-sets">{setsSummary}</div>
                             </div>
-                        );
-
-                    })
-                }
-            </div>
-
+                            <div className="pending-confirmation-actions">
+                                <Button
+                                    onClick={() => handleConfirm(match.id)}
+                                    disabled={busyId === match.id}
+                                >
+                                    <Check size={15} /> Confirm
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => handleReject(match.id)}
+                                    disabled={busyId === match.id}
+                                >
+                                    <X size={15} /> Reject
+                                </Button>
+                            </div>
+                        </div>
+                    );
+                })
+            }
         </div>
     );
-
 }
 
 export default PendingConfirmations;

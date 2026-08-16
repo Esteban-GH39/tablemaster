@@ -1,78 +1,79 @@
-import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
-import { createChallenge } from "../../services/challenges.service";
+import { proposeFriendlyMatch } from "../../services/matches.service";
 
-import SetScoreInput from "../matchResults/SetScoreInput";
 import Button from "../../components/ui/Button/Button";
+import SetScoreInput from "../matchResults/SetScoreInput";
+import "../matchResults/MatchResult.css";
 
 import { MATCH_FORMAT_LABELS } from "../../utils/constants";
 
-import "./ChallengeForm.css";
-
 const emptySet = () => ({ playerOneScore: "", playerTwoScore: "" });
 
-const validateSet = (playerOneScore, playerTwoScore) => {
+    const validateSet = (playerOneScore, playerTwoScore) => {
     if (playerOneScore === "" || playerTwoScore === "") return null;
     if (playerOneScore === playerTwoScore) return "Sets can't end in a tie.";
     const winner = Math.max(playerOneScore, playerTwoScore);
     const loser = Math.min(playerOneScore, playerTwoScore);
     if (winner < 11) return "Whoever wins a set needs at least 11 points.";
-    if (winner === 11) return loser <= 9 ? null : "With 11 points, the opponent must have 9 or fewer.";
+    if (winner === 11) {
+        return loser <= 9 ? null : "With 11 points, the opponent must have 9 or fewer.";
+    }
     return winner - loser === 2 ? null : "Past 11 points, the win margin must be exactly 2.";
 };
 
 const countSetWins = (sets) => {
-    let mine = 0;
-    let theirs = 0;
+    let playerOneSets = 0;
+    let playerTwoSets = 0;
     for (const set of sets) {
         if (set.playerOneScore === "" || set.playerTwoScore === "") continue;
         if (validateSet(set.playerOneScore, set.playerTwoScore)) continue;
-        if (set.playerOneScore > set.playerTwoScore) mine++;
-        else theirs++;
+        if (set.playerOneScore > set.playerTwoScore) playerOneSets++;
+        else playerTwoSets++;
     }
-    return { mine, theirs };
+    return { playerOneSets, playerTwoSets };
 };
 
-function ChallengeForm({ opponents, myName, onSuccess, onClose }) {
+function ChallengeForm({ myPlayer, players, onSuccess, onClose }) {
+
+    const opponents = players.filter((player) => player.id !== myPlayer.id);
 
     const [opponentId, setOpponentId] = useState("");
-    const [opponentOpen, setOpponentOpen] = useState(false);
-    const opponentRef = useRef(null);
-
     const [setsToWin, setSetsToWin] = useState(3);
-    const minSets = setsToWin;
-
-    const [sets, setSets] = useState(Array.from({ length: minSets }, emptySet));
+    const [sets, setSets] = useState(Array.from({ length: 3 }, emptySet));
     const [submitError, setSubmitError] = useState("");
     const [saving, setSaving] = useState(false);
 
-    const handleFormatChange = (value) => {
-        setSetsToWin(value);
-        setSets(Array.from({ length: value }, emptySet));
-    };
+    const opponentName = opponents.find((p) => p.id === opponentId)?.fullName ?? "Opponent";
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (opponentRef.current && !opponentRef.current.contains(event.target)) {
-                setOpponentOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    const minSets = setsToWin;
+    const maxSets = setsToWin * 2 - 1;
 
-    const opponent = opponents.find((player) => player.id === opponentId);
     const setErrors = sets.map((set) => validateSet(set.playerOneScore, set.playerTwoScore));
-    const { mine, theirs } = countSetWins(sets);
-    const matchDecided = mine === setsToWin || theirs === setsToWin;
+    const { playerOneSets, playerTwoSets } = countSetWins(sets);
+    const matchDecided = playerOneSets === setsToWin || playerTwoSets === setsToWin;
+
+    const handleFormatChange = (value) => {
+        const newSetsToWin = Number(value);
+        setSetsToWin(newSetsToWin);
+        setSets(Array.from({ length: newSetsToWin }, emptySet));
+    };
 
     const handleSetChange = (index, updatedSet) => {
         setSets((previous) => previous.map((set, i) => (i === index ? updatedSet : set)));
     };
 
-    const handleSubmit = async (event) => {
+    const handleAddSet = () => {
+        if (sets.length >= maxSets || matchDecided) return;
+        setSets((previous) => [...previous, emptySet()]);
+    };
 
+    const handleRemoveSet = (index) => {
+        if (sets.length <= minSets) return;
+        setSets((previous) => previous.filter((_, i) => i !== index));
+    };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
         setSubmitError("");
 
@@ -94,18 +95,18 @@ function ChallengeForm({ opponents, myName, onSuccess, onClose }) {
         }
 
         setSaving(true);
-
         try {
-            await createChallenge(
+            await proposeFriendlyMatch({
                 opponentId,
-                sets.map((set) => ({
+                setsToWin,
+                sets: sets.map((set) => ({
                     playerOneScore: Number(set.playerOneScore),
                     playerTwoScore: Number(set.playerTwoScore)
-                })),
-                setsToWin
-            );
+                }))
+            });
             onSuccess();
         } catch (error) {
+            console.error(error);
             setSubmitError(
                 error.response?.data?.message ||
                 "Error sending the challenge."
@@ -113,91 +114,54 @@ function ChallengeForm({ opponents, myName, onSuccess, onClose }) {
         } finally {
             setSaving(false);
         }
-
     };
 
     return (
-        <form className="challenge-form" onSubmit={handleSubmit}>
+        <form className="match-result-form" onSubmit={handleSubmit}>
 
-            <div className="challenge-form-field" ref={opponentRef}>
+            <p className="challenge-hint">
+                You (<strong>{myPlayer.fullName}</strong>) as Player One. Pick who you
+                played and enter the real score — they'll need to confirm it before it counts.
+            </p>
 
-                <label className="challenge-form-label">
-                    Who did you play against?
-                </label>
-
-                <div className="challenge-form-select-wrap">
-
-                    <button
-                        type="button"
-                        className={`challenge-form-select ${opponentOpen ? "is-open" : ""}`}
-                        onClick={() => setOpponentOpen((open) => !open)}
-                    >
-                        <span className={opponent ? "" : "challenge-form-placeholder"}>
-                            {opponent ? opponent.fullName : "Select a player"}
-                        </span>
-                        <ChevronDown size={18} className="challenge-form-select-chevron" />
-                    </button>
-
+            <div className="form-group">
+                <label>Opponent</label>
+                <select
+                    value={opponentId}
+                    onChange={(event) => setOpponentId(event.target.value)}
+                >
+                    <option value="">Select a player...</option>
                     {
-                        opponentOpen && (
-                            <div className="challenge-form-select-list" role="listbox">
-                                {
-                                    opponents.map((player) => (
-                                        <div
-                                            key={player.id}
-                                            role="option"
-                                            aria-selected={player.id === opponentId}
-                                            className={`challenge-form-select-option ${
-                                                player.id === opponentId ? "is-selected" : ""
-                                            }`}
-                                            onClick={() => {
-                                                setOpponentId(player.id);
-                                                setOpponentOpen(false);
-                                            }}
-                                        >
-                                            {player.fullName}
-                                            {player.id === opponentId && <Check size={16} />}
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        )
-                    }
-
-                </div>
-
-            </div>
-
-            <div className="challenge-form-field">
-
-                <label className="challenge-form-label">
-                    Format
-                </label>
-
-                <div className="challenge-form-format-toggle">
-                    {
-                        Object.entries(MATCH_FORMAT_LABELS).map(([value, label]) => (
-                            <button
-                                key={value}
-                                type="button"
-                                className={Number(value) === setsToWin ? "is-active" : ""}
-                                onClick={() => handleFormatChange(Number(value))}
-                            >
-                                {label}
-                            </button>
+                        opponents.map((player) => (
+                            <option key={player.id} value={player.id}>
+                                {player.fullName}
+                            </option>
                         ))
                     }
-                </div>
-
+                </select>
             </div>
 
-            <div className="challenge-form-players">
-                <span>{myName}</span>
-                <span className="challenge-form-tally">{mine} - {theirs}</span>
-                <span>{opponent ? opponent.fullName : "Opponent"}</span>
+            <div className="form-group">
+                <label>Format</label>
+                <select
+                    value={setsToWin}
+                    onChange={(event) => handleFormatChange(event.target.value)}
+                >
+                    {
+                        Object.entries(MATCH_FORMAT_LABELS).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))
+                    }
+                </select>
             </div>
 
-            <div className="challenge-form-sets">
+            <div className="match-result-players">
+                <span>{myPlayer.fullName}</span>
+                <span className="match-result-tally">{playerOneSets} - {playerTwoSets}</span>
+                <span>{opponentName}</span>
+            </div>
+
+            <div className="match-result-sets">
                 {
                     sets.map((set, index) => (
                         <SetScoreInput
@@ -205,37 +169,37 @@ function ChallengeForm({ opponents, myName, onSuccess, onClose }) {
                             setNumber={index + 1}
                             set={set}
                             onChange={(updatedSet) => handleSetChange(index, updatedSet)}
-                            canRemove={false}
-                            playerOneName={myName}
-                            playerTwoName={opponent ? opponent.fullName : "Opponent"}
+                            onRemove={() => handleRemoveSet(index)}
+                            canRemove={sets.length > minSets}
+                            playerOneName={myPlayer.fullName}
+                            playerTwoName={opponentName}
                             error={setErrors[index]}
                         />
                     ))
                 }
             </div>
 
-            {submitError && <p className="challenge-form-error">{submitError}</p>}
+            <button
+                type="button"
+                className="match-result-add-set"
+                onClick={handleAddSet}
+                disabled={sets.length >= maxSets || matchDecided}
+            >
+                + Add Set
+            </button>
 
-            <p className="challenge-form-hint">
-                {opponent ? opponent.fullName : "Your opponent"} will need to confirm this
-                result before it counts as a finished match.
-            </p>
+            {submitError && <p className="match-result-submit-error">{submitError}</p>}
 
-            <div className="challenge-form-actions">
-
-                <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>
+            <div className="form-actions">
+                <Button type="button" variant="secondary" onClick={onClose}>
                     Cancel
                 </Button>
-
-                <Button type="submit" variant="primary" disabled={saving}>
+                <Button type="submit" disabled={saving}>
                     {saving ? "Sending..." : "Send Challenge"}
                 </Button>
-
             </div>
-
         </form>
     );
-
 }
 
 export default ChallengeForm;
